@@ -1,0 +1,96 @@
+$ nvme id-ctrl /dev/nvme0
+NVME Identify Controller:
+vid       : 0xc0de
+ssvid     : 0xc0de
+sn        : VX2600012345
+mn        : VSSD-X100 3.84TB
+fr        : 1VX0A1B0
+rab       : 3
+ieee      : acde48
+cmic      : 0x3
+mdts      : 6
+cntlid    : 0x1
+ver       : 0x20000
+rtd3r     : 0x7a120
+rtd3e     : 0x989680
+oaes      : 0x300
+ctratt    : 0x80
+rrls      : 0
+cntrltype : 1
+fguid     : 00000000-0000-0000-0000-000000000000
+crdt1     : 0
+crdt2     : 0
+crdt3     : 0
+nvmsr     : 1
+vwci      : 0
+mec       : 0
+oacs      : 0x5f
+acl       : 3
+aerl      : 3
+frmw      : 0x17
+lpa       : 0x1e
+elpe      : 255
+npss      : 2
+avscc     : 0x1
+apsta     : 0
+wctemp    : 343
+cctemp    : 358
+mtfa      : 0
+hmpre     : 0
+hmmin     : 0
+tnvmcap   : 3840755982336
+unvmcap   : 0
+rpmbs     : 0
+edstt     : 30
+dsto      : 1
+fwug      : 0
+kas       : 0
+hctma     : 0
+mntmt     : 0
+mxtmt     : 0
+sanicap   : 0x3
+hmminds   : 0
+hmmaxd    : 0
+nsetidmax : 0
+endgidmax : 1
+anatt     : 0
+anacap    : 0
+anagrpmax : 0
+nanagrpid : 0
+pels      : 0
+domainid  : 0
+megcap    : 0
+sqes      : 0x66
+cqes      : 0x44
+maxcmd    : 0
+nn        : 32
+oncs      : 0xfc
+fuses     : 0
+fna       : 0x4
+vwc       : 0
+awun      : 0
+awupf     : 0
+icsvscc   : 1
+nwpc      : 0
+acwu      : 0
+ocfs      : 0
+sgls      : 0
+mnan      : 0
+maxdna    : 0
+maxcna    : 0
+subnqn    : nqn.2026-01.io.example:nvm-subsystem-sn-VX2600012345
+ioccsz    : 0
+iorcsz    : 0
+icdoff    : 0
+fcatt     : 0
+msdbd     : 0
+ofcs      : 0
+ps      0 : mp:25.00W operational enlat:0 exlat:0 rrt:0 rrl:0
+            rwt:0 rwl:0 idle_power:- active_power:-
+            active_power_workload:-
+ps      1 : mp:18.00W operational enlat:0 exlat:0 rrt:1 rrl:1
+            rwt:1 rwl:1 idle_power:- active_power:-
+            active_power_workload:-
+ps      2 : mp:12.00W operational enlat:0 exlat:0 rrt:2 rrl:2
+            rwt:2 rwl:2 idle_power:- active_power:-
+            active_power_workload:-

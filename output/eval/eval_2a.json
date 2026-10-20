@@ -1,0 +1,9 @@
+{
+  "task": "2-a-E",
+  "target": "output/expected_nvme_spec.json",
+  "target_iteration": 1,
+  "result": "PASS",
+  "checked_fields": 121,
+  "criteria": { "1": "PASS", "2": "PASS", "3": "PASS" },
+  "issues": []
+}

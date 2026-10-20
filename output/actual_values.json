@@ -1,0 +1,1535 @@
+{
+  "task": "Workflow Task 1 - 필드별 실제값",
+  "generated_at": "2026-10-20T06:45:02.098Z",
+  "inputs": [
+    {
+      "file": "data/nvme_id_ctrl.log",
+      "command": "nvme id-ctrl /dev/nvme0"
+    },
+    {
+      "file": "data/nvme_id_ns.log",
+      "command": "nvme id-ns /dev/nvme0n1"
+    }
+  ],
+  "summary": {
+    "total": 121,
+    "by_structure": {
+      "Identify Controller": 85,
+      "Power State Descriptor": 3,
+      "Identify Namespace": 31,
+      "LBA Format": 2
+    }
+  },
+  "warnings": [],
+  "fields": [
+    {
+      "structure": "Identify Controller",
+      "cli_name": "vid",
+      "value": "0xc0de",
+      "raw": "vid       : 0xc0de",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          3
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "ssvid",
+      "value": "0xc0de",
+      "raw": "ssvid     : 0xc0de",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          4
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "sn",
+      "value": "VX2600012345",
+      "raw": "sn        : VX2600012345",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          5
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "mn",
+      "value": "VSSD-X100 3.84TB",
+      "raw": "mn        : VSSD-X100 3.84TB",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          6
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "fr",
+      "value": "1VX0A1B0",
+      "raw": "fr        : 1VX0A1B0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          7
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "rab",
+      "value": "3",
+      "raw": "rab       : 3",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          8
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "ieee",
+      "value": "acde48",
+      "raw": "ieee      : acde48",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          9
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "cmic",
+      "value": "0x3",
+      "raw": "cmic      : 0x3",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          10
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "mdts",
+      "value": "6",
+      "raw": "mdts      : 6",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          11
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "cntlid",
+      "value": "0x1",
+      "raw": "cntlid    : 0x1",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          12
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "ver",
+      "value": "0x20000",
+      "raw": "ver       : 0x20000",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          13
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "rtd3r",
+      "value": "0x7a120",
+      "raw": "rtd3r     : 0x7a120",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          14
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "rtd3e",
+      "value": "0x989680",
+      "raw": "rtd3e     : 0x989680",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          15
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "oaes",
+      "value": "0x300",
+      "raw": "oaes      : 0x300",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          16
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "ctratt",
+      "value": "0x80",
+      "raw": "ctratt    : 0x80",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          17
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "rrls",
+      "value": "0",
+      "raw": "rrls      : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          18
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "cntrltype",
+      "value": "1",
+      "raw": "cntrltype : 1",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          19
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "fguid",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "raw": "fguid     : 00000000-0000-0000-0000-000000000000",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          20
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "crdt1",
+      "value": "0",
+      "raw": "crdt1     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          21
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "crdt2",
+      "value": "0",
+      "raw": "crdt2     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          22
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "crdt3",
+      "value": "0",
+      "raw": "crdt3     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          23
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "nvmsr",
+      "value": "1",
+      "raw": "nvmsr     : 1",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          24
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "vwci",
+      "value": "0",
+      "raw": "vwci      : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          25
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "mec",
+      "value": "0",
+      "raw": "mec       : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          26
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "oacs",
+      "value": "0x5f",
+      "raw": "oacs      : 0x5f",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          27
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "acl",
+      "value": "3",
+      "raw": "acl       : 3",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          28
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "aerl",
+      "value": "3",
+      "raw": "aerl      : 3",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          29
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "frmw",
+      "value": "0x17",
+      "raw": "frmw      : 0x17",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          30
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "lpa",
+      "value": "0x1e",
+      "raw": "lpa       : 0x1e",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          31
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "elpe",
+      "value": "255",
+      "raw": "elpe      : 255",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          32
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "npss",
+      "value": "2",
+      "raw": "npss      : 2",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          33
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "avscc",
+      "value": "0x1",
+      "raw": "avscc     : 0x1",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          34
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "apsta",
+      "value": "0",
+      "raw": "apsta     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          35
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "wctemp",
+      "value": "343",
+      "raw": "wctemp    : 343",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          36
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "cctemp",
+      "value": "358",
+      "raw": "cctemp    : 358",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          37
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "mtfa",
+      "value": "0",
+      "raw": "mtfa      : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          38
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "hmpre",
+      "value": "0",
+      "raw": "hmpre     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          39
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "hmmin",
+      "value": "0",
+      "raw": "hmmin     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          40
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "tnvmcap",
+      "value": "3840755982336",
+      "raw": "tnvmcap   : 3840755982336",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          41
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "unvmcap",
+      "value": "0",
+      "raw": "unvmcap   : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          42
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "rpmbs",
+      "value": "0",
+      "raw": "rpmbs     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          43
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "edstt",
+      "value": "30",
+      "raw": "edstt     : 30",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          44
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "dsto",
+      "value": "1",
+      "raw": "dsto      : 1",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          45
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "fwug",
+      "value": "0",
+      "raw": "fwug      : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          46
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "kas",
+      "value": "0",
+      "raw": "kas       : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          47
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "hctma",
+      "value": "0",
+      "raw": "hctma     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          48
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "mntmt",
+      "value": "0",
+      "raw": "mntmt     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          49
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "mxtmt",
+      "value": "0",
+      "raw": "mxtmt     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          50
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "sanicap",
+      "value": "0x3",
+      "raw": "sanicap   : 0x3",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          51
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "hmminds",
+      "value": "0",
+      "raw": "hmminds   : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          52
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "hmmaxd",
+      "value": "0",
+      "raw": "hmmaxd    : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          53
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "nsetidmax",
+      "value": "0",
+      "raw": "nsetidmax : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          54
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "endgidmax",
+      "value": "1",
+      "raw": "endgidmax : 1",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          55
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "anatt",
+      "value": "0",
+      "raw": "anatt     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          56
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "anacap",
+      "value": "0",
+      "raw": "anacap    : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          57
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "anagrpmax",
+      "value": "0",
+      "raw": "anagrpmax : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          58
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "nanagrpid",
+      "value": "0",
+      "raw": "nanagrpid : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          59
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "pels",
+      "value": "0",
+      "raw": "pels      : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          60
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "domainid",
+      "value": "0",
+      "raw": "domainid  : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          61
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "megcap",
+      "value": "0",
+      "raw": "megcap    : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          62
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "sqes",
+      "value": "0x66",
+      "raw": "sqes      : 0x66",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          63
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "cqes",
+      "value": "0x44",
+      "raw": "cqes      : 0x44",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          64
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "maxcmd",
+      "value": "0",
+      "raw": "maxcmd    : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          65
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "nn",
+      "value": "32",
+      "raw": "nn        : 32",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          66
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "oncs",
+      "value": "0xfc",
+      "raw": "oncs      : 0xfc",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          67
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "fuses",
+      "value": "0",
+      "raw": "fuses     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          68
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "fna",
+      "value": "0x4",
+      "raw": "fna       : 0x4",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          69
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "vwc",
+      "value": "0",
+      "raw": "vwc       : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          70
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "awun",
+      "value": "0",
+      "raw": "awun      : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          71
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "awupf",
+      "value": "0",
+      "raw": "awupf     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          72
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "icsvscc",
+      "value": "1",
+      "raw": "icsvscc   : 1",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          73
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "nwpc",
+      "value": "0",
+      "raw": "nwpc      : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          74
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "acwu",
+      "value": "0",
+      "raw": "acwu      : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          75
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "ocfs",
+      "value": "0",
+      "raw": "ocfs      : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          76
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "sgls",
+      "value": "0",
+      "raw": "sgls      : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          77
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "mnan",
+      "value": "0",
+      "raw": "mnan      : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          78
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "maxdna",
+      "value": "0",
+      "raw": "maxdna    : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          79
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "maxcna",
+      "value": "0",
+      "raw": "maxcna    : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          80
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "subnqn",
+      "value": "nqn.2026-01.io.example:nvm-subsystem-sn-VX2600012345",
+      "raw": "subnqn    : nqn.2026-01.io.example:nvm-subsystem-sn-VX2600012345",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          81
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "ioccsz",
+      "value": "0",
+      "raw": "ioccsz    : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          82
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "iorcsz",
+      "value": "0",
+      "raw": "iorcsz    : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          83
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "icdoff",
+      "value": "0",
+      "raw": "icdoff    : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          84
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "fcatt",
+      "value": "0",
+      "raw": "fcatt     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          85
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "msdbd",
+      "value": "0",
+      "raw": "msdbd     : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          86
+        ]
+      }
+    },
+    {
+      "structure": "Identify Controller",
+      "cli_name": "ofcs",
+      "value": "0",
+      "raw": "ofcs      : 0",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          87
+        ]
+      }
+    },
+    {
+      "structure": "Power State Descriptor",
+      "cli_name": "ps 0",
+      "index": 0,
+      "value": {
+        "mp": "25.00W",
+        "operational": true,
+        "enlat": "0",
+        "exlat": "0",
+        "rrt": "0",
+        "rrl": "0",
+        "rwt": "0",
+        "rwl": "0",
+        "idle_power": "-",
+        "active_power": "-",
+        "active_power_workload": "-"
+      },
+      "raw": "ps      0 : mp:25.00W operational enlat:0 exlat:0 rrt:0 rrl:0 rwt:0 rwl:0 idle_power:- active_power:- active_power_workload:-",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          88,
+          89,
+          90
+        ]
+      }
+    },
+    {
+      "structure": "Power State Descriptor",
+      "cli_name": "ps 1",
+      "index": 1,
+      "value": {
+        "mp": "18.00W",
+        "operational": true,
+        "enlat": "0",
+        "exlat": "0",
+        "rrt": "1",
+        "rrl": "1",
+        "rwt": "1",
+        "rwl": "1",
+        "idle_power": "-",
+        "active_power": "-",
+        "active_power_workload": "-"
+      },
+      "raw": "ps      1 : mp:18.00W operational enlat:0 exlat:0 rrt:1 rrl:1 rwt:1 rwl:1 idle_power:- active_power:- active_power_workload:-",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          91,
+          92,
+          93
+        ]
+      }
+    },
+    {
+      "structure": "Power State Descriptor",
+      "cli_name": "ps 2",
+      "index": 2,
+      "value": {
+        "mp": "12.00W",
+        "operational": true,
+        "enlat": "0",
+        "exlat": "0",
+        "rrt": "2",
+        "rrl": "2",
+        "rwt": "2",
+        "rwl": "2",
+        "idle_power": "-",
+        "active_power": "-",
+        "active_power_workload": "-"
+      },
+      "raw": "ps      2 : mp:12.00W operational enlat:0 exlat:0 rrt:2 rrl:2 rwt:2 rwl:2 idle_power:- active_power:- active_power_workload:-",
+      "source": {
+        "file": "data/nvme_id_ctrl.log",
+        "lines": [
+          94,
+          95,
+          96
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nsze",
+      "value": "0x37e3ee56",
+      "raw": "nsze    : 0x37e3ee56",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          3
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "ncap",
+      "value": "0x37e3ee56",
+      "raw": "ncap    : 0x37e3ee56",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          4
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nuse",
+      "value": "0x37e3ee56",
+      "raw": "nuse    : 0x37e3ee56",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          5
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nsfeat",
+      "value": "0",
+      "raw": "nsfeat  : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          6
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nlbaf",
+      "value": "1",
+      "raw": "nlbaf   : 1",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          7
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "flbas",
+      "value": "0x1",
+      "raw": "flbas   : 0x1",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          8
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "mc",
+      "value": "0",
+      "raw": "mc      : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          9
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "dpc",
+      "value": "0",
+      "raw": "dpc     : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          10
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "dps",
+      "value": "0",
+      "raw": "dps     : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          11
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nmic",
+      "value": "0x1",
+      "raw": "nmic    : 0x1",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          12
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "rescap",
+      "value": "0xff",
+      "raw": "rescap  : 0xff",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          13
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "fpi",
+      "value": "0x80",
+      "raw": "fpi     : 0x80",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          14
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "dlfeat",
+      "value": "9",
+      "raw": "dlfeat  : 9",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          15
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nawun",
+      "value": "0",
+      "raw": "nawun   : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          16
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nawupf",
+      "value": "0",
+      "raw": "nawupf  : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          17
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nacwu",
+      "value": "0",
+      "raw": "nacwu   : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          18
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nabsn",
+      "value": "0",
+      "raw": "nabsn   : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          19
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nabo",
+      "value": "0",
+      "raw": "nabo    : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          20
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nabspf",
+      "value": "0",
+      "raw": "nabspf  : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          21
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "noiob",
+      "value": "0",
+      "raw": "noiob   : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          22
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nvmcap",
+      "value": "3840755982336",
+      "raw": "nvmcap  : 3840755982336",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          23
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "mssrl",
+      "value": "0",
+      "raw": "mssrl   : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          24
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "mcl",
+      "value": "0",
+      "raw": "mcl     : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          25
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "msrc",
+      "value": "0",
+      "raw": "msrc    : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          26
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nulbaf",
+      "value": "0",
+      "raw": "nulbaf  : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          27
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "anagrpid",
+      "value": "0",
+      "raw": "anagrpid: 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          28
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nsattr",
+      "value": "0",
+      "raw": "nsattr  : 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          29
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nvmsetid",
+      "value": "0",
+      "raw": "nvmsetid: 0",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          30
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "endgid",
+      "value": "1",
+      "raw": "endgid  : 1",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          31
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "nguid",
+      "value": "acde4800000012345000000000000001",
+      "raw": "nguid   : acde4800000012345000000000000001",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          32
+        ]
+      }
+    },
+    {
+      "structure": "Identify Namespace",
+      "cli_name": "eui64",
+      "value": "acde480000012345",
+      "raw": "eui64   : acde480000012345",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          33
+        ]
+      }
+    },
+    {
+      "structure": "LBA Format",
+      "cli_name": "lbaf 0",
+      "index": 0,
+      "value": {
+        "ms": "0",
+        "lbads": "9",
+        "rp": "0x2",
+        "in_use": false
+      },
+      "raw": "lbaf  0 : ms:0   lbads:9  rp:0x2",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          34
+        ]
+      }
+    },
+    {
+      "structure": "LBA Format",
+      "cli_name": "lbaf 1",
+      "index": 1,
+      "value": {
+        "ms": "0",
+        "lbads": "12",
+        "rp": "0",
+        "in_use": true
+      },
+      "raw": "lbaf  1 : ms:0   lbads:12 rp:0 (in use)",
+      "source": {
+        "file": "data/nvme_id_ns.log",
+        "lines": [
+          35
+        ]
+      }
+    }
+  ]
+}

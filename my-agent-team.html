@@ -1,0 +1,1219 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ID 필드 검증 Agent Team</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --surface-2: #f1f0ec;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #898781;
+    --line: #9a9890;
+    --border: rgba(11, 11, 11, 0.12);
+    --code: #6b6a65;
+    --code-wash: #eceae4;
+    --ai: #2a78d6;
+    --ai-wash: rgba(42, 120, 214, 0.09);
+    --human: #eb6834;
+    --human-wash: rgba(235, 104, 52, 0.10);
+    --parallel: #1baf7a;
+    --parallel-wash: rgba(27, 175, 122, 0.06);
+    --router: #6250d6;
+    --router-wash: rgba(98, 80, 214, 0.10);
+    --geneval: #d55181;
+    --good: #0ca30c;
+    --warning: #fab219;
+    --critical: #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --surface-2: #242422;
+      --text-primary: #f0efec;
+      --text-secondary: #c3c2b7;
+      --text-muted: #898781;
+      --line: #6f6e68;
+      --border: rgba(255, 255, 255, 0.12);
+      --code: #a9a79f;
+      --code-wash: #262624;
+      --ai: #3987e5;
+      --ai-wash: rgba(57, 135, 229, 0.14);
+      --human: #d95926;
+      --human-wash: rgba(217, 89, 38, 0.16);
+      --parallel: #199e70;
+      --parallel-wash: rgba(25, 158, 112, 0.08);
+      --router: #9085e9;
+      --router-wash: rgba(144, 133, 233, 0.14);
+      --geneval: #d55181;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-2: #242422;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --line: #6f6e68;
+    --border: rgba(255, 255, 255, 0.12);
+    --code: #a9a79f;
+    --code-wash: #262624;
+    --ai: #3987e5;
+    --ai-wash: rgba(57, 135, 229, 0.14);
+    --human: #d95926;
+    --human-wash: rgba(217, 89, 38, 0.16);
+    --parallel: #199e70;
+    --parallel-wash: rgba(25, 158, 112, 0.08);
+    --router: #9085e9;
+    --router-wash: rgba(144, 133, 233, 0.14);
+    --geneval: #d55181;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 24px 16px 56px; }
+  header h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  header p { margin: 0; color: var(--text-secondary); }
+
+  /* legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 16px 0 18px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; font-size: 12.5px; color: var(--text-secondary); }
+  .legend .grp { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+  .legend .sep { width: 1px; background: var(--border); align-self: stretch; }
+  .lg { display: inline-flex; align-items: center; gap: 6px; }
+  .lg i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; border: 2px solid; }
+  .lg i.code { border-color: var(--code); background: var(--code-wash); }
+  .lg i.ai { border-color: var(--ai); background: var(--ai-wash); }
+  .lg i.human { border-color: var(--human); background: var(--human-wash); }
+  .lg i.par { border: 2px dashed var(--parallel); background: var(--parallel-wash); }
+  .lg i.router { border-color: var(--router); background: var(--router-wash); transform: rotate(45deg) scale(.8); }
+  .lg svg { flex: none; }
+
+  /* diagram */
+  .scroller { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+  .diagram { position: relative; min-width: 980px; padding: 22px 22px 30px; --c1: 190px; --gap: 28px; }
+  .diagram > svg { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+  .row { display: grid; grid-template-columns: var(--c1) repeat(3, 1fr); column-gap: var(--gap); position: relative; z-index: 1; }
+  .row + .row { margin-top: 46px; }
+  .span3 { grid-column: 2 / 5; }
+  .center { justify-self: center; }
+
+  .band { border-radius: 12px; padding: 10px 12px 12px; position: relative; }
+  .band-title { font-size: 11.5px; font-weight: 700; letter-spacing: .04em; color: var(--text-muted); margin-bottom: 8px; }
+  .band.inputs { grid-column: 1 / 5; display: grid; grid-template-columns: var(--c1) repeat(3, 1fr); column-gap: var(--gap); background: var(--surface-2); padding: 10px 0 12px; }
+  .band.inputs .band-title { grid-column: 1 / 5; padding-left: 12px; }
+  .band.outputs { background: var(--surface-2); display: flex; flex-direction: column; align-items: center; }
+  .band.outputs .items { display: flex; gap: 12px; }
+
+  .doc { margin: 0 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 12.5px; display: flex; gap: 8px; align-items: flex-start; }
+  .doc .fi { flex: none; width: 22px; height: 26px; border-radius: 3px; font-size: 9px; font-weight: 700; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px; color: #fff; }
+  .doc b { display: block; font-size: 13px; }
+  .doc span { color: var(--text-muted); font-size: 11.5px; }
+
+  .task { position: relative; background: var(--surface); border: 2px solid; border-radius: 10px; padding: 8px 11px 9px; cursor: default; }
+  .task .tag { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .02em; margin-bottom: 2px; }
+  .task .tag .who { padding: 1px 6px; border-radius: 4px; color: #fff; }
+  .task .name { font-weight: 650; font-size: 13.5px; line-height: 1.35; }
+  .task .desc { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
+  .task .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .chip { font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border); color: var(--text-secondary); background: var(--surface-2); }
+  .task.code { border-color: var(--code); background: var(--code-wash); }
+  .task.code .who { background: var(--code); }
+  .task.ai { border-color: var(--ai); background: var(--ai-wash); }
+  .task.ai .who { background: var(--ai); }
+  .task.human { border-color: var(--human); background: var(--human-wash); }
+  .task.human .who { background: var(--human); }
+  .task .role { padding: 1px 6px; border-radius: 4px; border: 1px solid var(--geneval); color: var(--text-primary); font-weight: 700; }
+  .task:hover { box-shadow: 0 0 0 4px var(--border); }
+
+  .pbox { grid-column: 2 / 5; border: 2px dashed var(--parallel); background: var(--parallel-wash); border-radius: 14px; padding: 10px 14px 14px; }
+  .pbox-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 26px; }
+  .pbox-head b { color: var(--text-primary); font-size: 13px; }
+  .pbox-head .ptag { font-size: 11px; font-weight: 700; color: #fff; background: var(--parallel); padding: 1px 7px; border-radius: 4px; }
+  .pbox-head span { color: var(--text-secondary); font-size: 12px; }
+  .pbox-head b, .pbox-head span:not(.ptag) { background: var(--surface); padding: 0 5px; border-radius: 4px; }
+  .pbox-head .ge { flex-basis: 100%; height: 0; }
+  .pbox-head .gen { color: var(--text-primary); }
+  .lanes { display: grid; gap: 18px; }
+  .lanes.three { grid-template-columns: repeat(3, 1fr); }
+  .lanes.two { grid-template-columns: repeat(2, 1fr); gap: 40px; padding: 0 40px; }
+  .lane { display: flex; flex-direction: column; gap: 40px; padding-right: 54px; }
+  .lanes.two .lane { padding-right: 0; }
+  .lane-head { font-size: 11px; font-weight: 700; color: var(--geneval); margin: -18px 0 -32px; display: flex; gap: 6px; align-items: center; }
+  .pbox-foot { margin-top: 16px; font-size: 12px; color: var(--text-secondary); display: flex; gap: 6px; align-items: center; }
+  .note { font-size: 11.5px; color: var(--text-secondary); margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); }
+
+  .c1-slot { align-self: start; margin-top: 62px; }
+
+  .router { justify-self: center; display: flex; align-items: center; gap: 12px; padding: 8px 18px 8px 10px; border: 2px solid var(--router); background: var(--router-wash); border-radius: 999px; }
+  .router .dia { width: 26px; height: 26px; transform: rotate(45deg); background: var(--router); border-radius: 4px; flex: none; }
+  .router b { display: block; font-size: 13.5px; }
+  .router span { font-size: 12px; color: var(--text-secondary); }
+
+  .endnode { justify-self: center; display: flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 999px; background: var(--text-primary); color: var(--surface); font-weight: 650; font-size: 13px; }
+
+  /* tooltip */
+  .tip { position: fixed; z-index: 20; display: none; pointer-events: none; max-width: 340px; background: var(--surface); color: var(--text-primary); border: 1px solid var(--border); box-shadow: 0 6px 20px rgba(0,0,0,.16); border-radius: 10px; padding: 10px 12px; font-size: 12.5px; }
+  .tip h4 { margin: 0 0 6px; font-size: 13px; }
+  .tip dl { display: grid; grid-template-columns: 52px 1fr; gap: 3px 8px; margin: 0; }
+  .tip dt { color: var(--text-muted); }
+  .tip dd { margin: 0; }
+
+  /* svg */
+  .e { fill: none; stroke: var(--line); stroke-width: 1.75; stroke-linejoin: round; }
+  .e.data { stroke-dasharray: 5 4; }
+  .e.loop { stroke: var(--geneval); stroke-width: 2; }
+  .e.route { stroke: var(--router); stroke-width: 2; }
+  .lbl { font-size: 11.5px; font-weight: 600; fill: var(--text-secondary); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+  .lbl.loop { fill: var(--geneval); font-weight: 700; }
+
+  /* summary cards */
+  .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 20px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; border-top: 4px solid; font-size: 13px; }
+  .card h3 { margin: 0 0 8px; font-size: 14px; }
+  .card ul { margin: 0; padding-left: 18px; }
+  .card li { margin: 3px 0; }
+  .card .k { color: var(--text-muted); font-size: 12px; }
+  .card.par { border-top-color: var(--parallel); }
+  .card.rt { border-top-color: var(--router); }
+  .card.ge { border-top-color: var(--geneval); }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
+  @media (max-width: 980px) { .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .summary { grid-template-columns: 1fr; } }
+
+  /* page sections */
+  .toc { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 6px; }
+  .toc a { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); text-decoration: none; padding: 4px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
+  .toc a:hover { color: var(--text-primary); border-color: var(--text-muted); }
+  .sec { margin-top: 30px; }
+  .sec > h2 { font-size: 17px; margin: 0 0 4px; display: flex; align-items: baseline; gap: 8px; }
+  .sec > h2 .n { color: var(--text-muted); font-weight: 650; }
+  .sec > .lead { color: var(--text-secondary); margin: 0 0 12px; font-size: 13px; }
+  .goal { display: grid; grid-template-columns: 1.6fr repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .tile .k { font-size: 12px; color: var(--text-muted); }
+  .tile .v { font-size: 20px; font-weight: 650; margin-top: 2px; }
+  .tile.main .v { font-size: 17px; line-height: 1.4; }
+  .tile.main p { margin: 6px 0 0; font-size: 13px; color: var(--text-secondary); }
+  .tbl-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+  table.t { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.t th, table.t td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.t th { font-size: 12px; color: var(--text-secondary); background: var(--surface-2); font-weight: 650; white-space: nowrap; }
+  table.t tr:last-child td { border-bottom: 0; }
+  table.t code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
+  table.t td.grp { font-weight: 650; white-space: nowrap; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 4px; color: #fff; white-space: nowrap; }
+  .pill.gen { background: var(--ai); }
+  .pill.eval { background: var(--geneval); }
+  .pill.ai { background: var(--ai); }
+  .ext { display: inline-block; font-size: 11px; font-weight: 600; padding: 0 6px; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-2); margin-right: 3px; }
+  .muted { color: var(--text-muted); }
+  .chip.agent { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-weight: 500; }
+  .sample-bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; font-size: 12.5px; color: var(--text-secondary); margin-bottom: 8px; }
+  iframe.sample { width: 100%; height: 960px; border: 1px solid var(--border); border-radius: 12px; background: var(--page); display: block; }
+  @media (max-width: 860px) { .goal { grid-template-columns: repeat(2, minmax(0, 1fr)); } .goal .main { grid-column: 1 / -1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>ID 필드 검증 Agent Team</h1>
+    <p>Solution PE Server SSD · 업무설계서.md · workflow.md · .claude/agents 기준</p>
+    <nav class="toc">
+      <a href="#s1">1 업무</a><a href="#s2">2 입력 자료</a><a href="#s3">3 Sub Agent 역할</a><a href="#s4">4 Workflow</a><a href="#s5">5 결과물 샘플</a>
+    </nav>
+  </header>
+
+  <!-- 1. 업무 -->
+  <section class="sec" id="s1">
+    <h2><span class="n">1</span>내가 Agent로 만든 업무</h2>
+    <p class="lead">SSD Identify 필드를 기준 문서와 대조해 판정하고, Fail 분석과 문의 초안까지 Agent 팀이 만든다. 사람은 검토와 발송 결정만 한다.</p>
+    <div class="goal">
+      <div class="tile main"><div class="k">업무명</div><div class="v">ID 필드 검증 및 모호한 부분 문의</div>
+        <p>nvme-cli Identify 값 ↔ NVMe Spec · Spec Gap · 제품 사양 → Pass / Fail / 검토 필요</p></div>
+      <div class="tile"><div class="k">빈도</div><div class="v">주 1회</div></div>
+      <div class="tile"><div class="k">1회 소요시간 (현재)</div><div class="v">약 2일</div></div>
+      <div class="tile"><div class="k">팀 구성</div><div class="v">AI 8 · 코드 3 · 사람 1</div></div>
+    </div>
+  </section>
+
+  <!-- 2. 입력 자료 -->
+  <section class="sec" id="s2">
+    <h2><span class="n">2</span>사용한 입력 자료</h2>
+    <div class="tbl-wrap">
+      <table class="t">
+        <thead><tr><th>자료</th><th>형식</th><th>주요 내용</th><th>사용하는 Task</th><th>실습 위치</th></tr></thead>
+        <tbody>
+          <tr><td class="grp">nvme-cli 출력 로그</td><td>텍스트 (.log)</td><td><code>nvme id-ctrl</code> / <code>id-ns</code> 결과 — 검증 대상</td><td>코드 1</td><td><code>data/nvme_id_ctrl.log</code> <code>data/nvme_id_ns.log</code></td></tr>
+          <tr><td class="grp">NVMe Spec 문서</td><td>PDF → md</td><td>NVMe Base Spec 2.1, NVM Command Set Spec 1.1</td><td>2-a, 2-a-E, 4 <span class="ext">RAG</span></td><td><code>data/NVM-Express-*.md</code></td></tr>
+          <tr><td class="grp">Spec Gap 문서</td><td>엑셀</td><td>Spec과 차이 나는 제품 정책 (상태·담당 포함)</td><td>2-b, 2-b-E</td><td><code>data/spec_gap.xlsx</code></td></tr>
+          <tr><td class="grp">사내 Confluence 문서</td><td>Confluence</td><td>기타 제품 사양</td><td>2-c, 2-c-E <span class="ext">MCP</span></td><td><code>data/product_spec_confluence.txt</code> <span class="muted">(내보내기 파일로 대체)</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 3. Sub Agent 역할 -->
+  <section class="sec" id="s3">
+    <h2><span class="n">3</span>Sub Agent별 역할</h2>
+    <p class="lead"><code>.claude/agents/</code> 8개. 한 Agent = 한 역할 · Evaluator는 고치지 않고 지적만 · 판정은 코드 3, 발송 결정은 사람 7.</p>
+    <div class="tbl-wrap">
+      <table class="t">
+        <thead><tr><th>Task</th><th>Sub Agent</th><th>구분</th><th>하는 일</th><th>입력</th><th>결과물</th></tr></thead>
+        <tbody>
+          <tr><td class="grp">2-a</td><td><code>nvme-spec-expected-gen</code></td><td><span class="pill gen">Gen</span></td><td>NVMe Spec 기준 필드별 기대값·근거 정리</td><td>NVMe Spec <span class="ext">RAG</span>, 필드 목록</td><td><code>expected_nvme_spec.json</code></td></tr>
+          <tr><td class="grp">2-a-E</td><td><code>nvme-spec-expected-eval</code></td><td><span class="pill eval">Eval</span></td><td>2-a 결과를 Spec 원문과 대조 → PASS / FAIL</td><td>2-a 결과, NVMe Spec</td><td><code>eval/eval_2a.json</code></td></tr>
+          <tr><td class="grp">2-b</td><td><code>spec-gap-expected-gen</code></td><td><span class="pill gen">Gen</span></td><td>Spec Gap 기준 제품 정책 기대값·근거 정리</td><td>Spec Gap 엑셀, 필드 목록</td><td><code>expected_spec_gap.json</code></td></tr>
+          <tr><td class="grp">2-b-E</td><td><code>spec-gap-expected-eval</code></td><td><span class="pill eval">Eval</span></td><td>2-b 결과를 Spec Gap 원문과 대조 → PASS / FAIL</td><td>2-b 결과, Spec Gap</td><td><code>eval/eval_2b.json</code></td></tr>
+          <tr><td class="grp">2-c</td><td><code>product-spec-expected-gen</code></td><td><span class="pill gen">Gen</span></td><td>제품 사양 서술 → 필드 값 변환·근거 정리</td><td>Confluence <span class="ext">MCP</span>, 필드 목록</td><td><code>expected_product_spec.json</code></td></tr>
+          <tr><td class="grp">2-c-E</td><td><code>product-spec-expected-eval</code></td><td><span class="pill eval">Eval</span></td><td>2-c 결과를 Confluence 원문과 대조 → PASS / FAIL</td><td>2-c 결과, Confluence</td><td><code>eval/eval_2c.json</code></td></tr>
+          <tr><td class="grp">4</td><td><code>fail-analysis</code></td><td><span class="pill ai">AI</span></td><td>Fail 항목 원인·영향도·조치 제안, 전체 종합 의견</td><td>판정 결과(Fail), NVMe Spec <span class="ext">RAG</span></td><td><code>fail_analysis.json</code></td></tr>
+          <tr><td class="grp">5</td><td><code>review-inquiry-writer</code></td><td><span class="pill ai">AI</span></td><td>검토 필요 항목 사유·문의 대상·문의 초안</td><td>판정 결과(검토 필요)</td><td><code>review_items.json</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="lead" style="margin-top:8px">코드 Task: 1 로그 파싱 <code>code/01_parse_nvme_cli.js</code> · 3 판정 <code>code/03_judge.js</code> · 6 대시보드·엑셀 <code>code/06_build_report.js</code> &nbsp;|&nbsp; 사람: 7 결과 검토·문의 발송 결정</p>
+  </section>
+
+  <!-- 4. Workflow -->
+  <section class="sec" id="s4">
+    <h2><span class="n">4</span>Agent들이 일하는 Workflow</h2>
+    <p class="lead">Parallel A(기대값 3갈래, 갈래마다 Gen / Eval 최대 2회) → 코드 3 판정 → Router(Pass / Fail / 검토 필요) → Parallel B → 코드 6 → 사람 7</p>
+
+  <div class="legend">
+    <div class="grp">
+      <span class="lg"><i class="code"></i>코드</span>
+      <span class="lg"><i class="ai"></i>AI</span>
+      <span class="lg"><i class="human"></i>사람</span>
+    </div>
+    <div class="sep"></div>
+    <div class="grp">
+      <span class="lg"><i class="par"></i>Parallel (동시 실행)</span>
+      <span class="lg"><i class="router"></i>Router (조건 분기)</span>
+      <span class="lg"><svg width="26" height="14"><path d="M2 3 H18 V11 H6" fill="none" stroke="var(--geneval)" stroke-width="2"/><path d="M9 8 L5 11 L9 14" fill="none" stroke="var(--geneval)" stroke-width="2"/></svg>Gen / Eval (FAIL 시 재수정)</span>
+    </div>
+    <div class="sep"></div>
+    <div class="grp">
+      <span class="lg"><svg width="26" height="10"><path d="M1 5 H24" stroke="var(--line)" stroke-width="1.75"/></svg>실행 흐름</span>
+      <span class="lg"><svg width="26" height="10"><path d="M1 5 H24" stroke="var(--line)" stroke-width="1.75" stroke-dasharray="5 4"/></svg>입력 자료·데이터 전달</span>
+      <span class="lg" style="color:var(--text-muted)">상자에 마우스를 올리면 입력·출력·다음 Task가 보입니다</span>
+    </div>
+  </div>
+
+  <div class="scroller">
+    <div class="diagram" id="diagram">
+      <svg id="edges" aria-hidden="true"></svg>
+
+      <!-- 입력 자료 -->
+      <div class="row">
+        <div class="band inputs">
+          <div class="band-title">입력 자료</div>
+          <div class="doc" id="in-log"><span class="fi" style="background:#5a5a5a">LOG</span><div><b>nvme-cli 출력 로그</b><span>id-ctrl / id-ns (검증 대상)</span></div></div>
+          <div class="doc" id="in-spec"><span class="fi" style="background:#c0392b">PDF</span><div><b>NVMe Spec 문서</b><span>NVMe Base Spec · RAG</span></div></div>
+          <div class="doc" id="in-gap"><span class="fi" style="background:#1d7a45">XLS</span><div><b>Spec Gap 문서</b><span>Spec과 차이 나는 정책</span></div></div>
+          <div class="doc" id="in-conf"><span class="fi" style="background:#2a62b8">WIKI</span><div><b>사내 Confluence 문서</b><span>기타 제품 사양 · MCP</span></div></div>
+        </div>
+      </div>
+
+      <!-- 코드 1 + Parallel A (Gen / Eval) -->
+      <div class="row">
+        <div class="c1-slot">
+          <div class="task code" id="c1"
+               data-t="1. nvme-cli 출력 로그(id-ctrl / id-ns)를 읽어 필드별 실제값 정리" data-in="nvme-cli 출력 로그" data-out="필드별 실제값" data-next="2-a, 2-b, 2-c">
+            <div class="tag"><span class="who">코드</span>1</div>
+            <div class="name">nvme-cli 로그 파싱</div>
+            <div class="desc">필드별 실제값 정리</div>
+          </div>
+        </div>
+        <div class="pbox" id="parA">
+          <div class="pbox-head"><span class="ptag">Parallel A</span><b>필드별 기대값과 근거 문서 정리</b><span>④ 다른 입력 × 다른 에이전트</span><i class="ge"></i><span class="gen" style="color:var(--geneval);font-weight:700">⟲ 갈래별 Gen / Eval</span><span>FAIL 시 같은 갈래 Gen으로 복귀 · 최대 2회 · 2회 초과 FAIL 필드는 '검토 필요' 표시 후 코드 3으로 진행</span></div>
+          <div class="lanes three">
+            <div class="lane">
+              <div class="task ai" id="g2a"
+                   data-t="2-a. [Gen] NVMe Spec 기준 필드 정의·기대값과 근거 정리" data-in="NVMe Spec 문서 (RAG), 필드 목록" data-out="출처별 기대값 (NVMe Spec)" data-next="2-a-E">
+                <div class="tag"><span class="who">AI</span>2-a<span class="role">Gen</span></div>
+                <div class="name">NVMe Spec 기준 필드 정의·기대값과 근거 정리</div>
+                <div class="chips"><span class="chip">RAG</span></div>
+              </div>
+              <div class="task ai" id="e2a"
+                   data-t="2-a-E. [Eval] 2-a 결과를 NVMe Spec 원문과 대조 검토" data-in="2-a 결과, NVMe Spec 문서 (RAG), 필드 목록" data-out="PASS / FAIL, 문제 필드·사유" data-next="PASS → 3 / FAIL → 2-a">
+                <div class="tag"><span class="who">AI</span>2-a-E<span class="role">Eval</span></div>
+                <div class="name">NVMe Spec 원문과 대조 검토</div>
+                <div class="chips"><span class="chip">RAG</span></div>
+              </div>
+            </div>
+            <div class="lane">
+              <div class="task ai" id="g2b"
+                   data-t="2-b. [Gen] Spec Gap 문서 기준 제품 정책 기대값과 근거 정리" data-in="Spec Gap 문서, 필드 목록" data-out="출처별 기대값 (Spec Gap)" data-next="2-b-E">
+                <div class="tag"><span class="who">AI</span>2-b<span class="role">Gen</span></div>
+                <div class="name">Spec Gap 기준 제품 정책 기대값과 근거 정리</div>
+              </div>
+              <div class="task ai" id="e2b"
+                   data-t="2-b-E. [Eval] 2-b 결과를 Spec Gap 원문과 대조 검토" data-in="2-b 결과, Spec Gap 문서, 필드 목록" data-out="PASS / FAIL, 문제 필드·사유" data-next="PASS → 3 / FAIL → 2-b">
+                <div class="tag"><span class="who">AI</span>2-b-E<span class="role">Eval</span></div>
+                <div class="name">Spec Gap 원문과 대조 검토</div>
+              </div>
+            </div>
+            <div class="lane">
+              <div class="task ai" id="g2c"
+                   data-t="2-c. [Gen] Confluence 제품 사양을 필드 값으로 변환하고 근거 정리" data-in="사내 Confluence 문서 (MCP), 필드 목록" data-out="출처별 기대값 (제품 사양)" data-next="2-c-E">
+                <div class="tag"><span class="who">AI</span>2-c<span class="role">Gen</span></div>
+                <div class="name">Confluence 제품 사양 → 필드 값 변환·근거 정리</div>
+                <div class="chips"><span class="chip">MCP</span></div>
+              </div>
+              <div class="task ai" id="e2c"
+                   data-t="2-c-E. [Eval] 2-c 결과를 Confluence 원문과 대조 검토" data-in="2-c 결과, 사내 Confluence 문서 (MCP), 필드 목록" data-out="PASS / FAIL, 문제 필드·사유" data-next="PASS → 3 / FAIL → 2-c">
+                <div class="tag"><span class="who">AI</span>2-c-E<span class="role">Eval</span></div>
+                <div class="name">Confluence 원문과 대조 검토</div>
+                <div class="chips"><span class="chip">MCP</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 코드 3 -->
+      <div class="row">
+        <div class="span3 center" style="width:440px">
+          <div class="task code" id="c3"
+               data-t="3. 기대값과 실제값을 비교해 Pass / Fail / 검토 필요 판정" data-in="필드별 실제값, 출처별 기대값" data-out="필드별 판정 결과" data-next="Router">
+            <div class="tag"><span class="who">코드</span>3</div>
+            <div class="name">기대값·실제값 비교 → Pass / Fail / 검토 필요 판정</div>
+            <div class="desc">세 갈래(2-a-E · 2-b-E · 2-c-E)가 모두 끝나면 실행</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Router -->
+      <div class="row">
+        <div class="span3 center">
+          <div class="router" id="router">
+            <span class="dia"></span>
+            <div><b>Router · 필드별 판정 상태</b><span>코드 3 결과로 분기</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Parallel B -->
+      <div class="row">
+        <div></div>
+        <div class="pbox" id="parB">
+          <div class="pbox-head"><span class="ptag">Parallel B</span><b>Fail 분석 · 검토 필요 문의 작성</b><span>④ 다른 입력 × 다른 에이전트</span></div>
+          <div class="lanes two">
+            <div class="lane">
+              <div class="task ai" id="a4"
+                   data-t="4. Fail 항목별 원인 분석, 영향도·조치 제안, 전체 종합 의견 작성" data-in="Fail 항목, 필드별 판정 결과, NVMe Spec (RAG)" data-out="Fail 분석, 종합 의견" data-next="6">
+                <div class="tag"><span class="who">AI</span>4</div>
+                <div class="name">Fail 원인 분석 · 영향도·조치 제안 · 전체 종합 의견</div>
+                <div class="chips"><span class="chip">RAG</span></div>
+                <div class="note">Fail 0건이면 전체 종합 의견만 작성</div>
+              </div>
+            </div>
+            <div class="lane">
+              <div class="task ai" id="a5"
+                   data-t="5. 검토 필요 항목별 사유 정리, 문의 대상 지정, 문의 초안 작성" data-in="검토 필요 항목" data-out="검토 필요사항, 문의 초안" data-next="6">
+                <div class="tag"><span class="who">AI</span>5</div>
+                <div class="name">검토 필요 사유 정리 · 문의 대상 지정 · 문의 초안</div>
+                <div class="note">검토 필요 0건이면 호출하지 않음</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 코드 6 -->
+      <div class="row">
+        <div class="span3 center" style="width:440px">
+          <div class="task code" id="c6"
+               data-t="6. 대시보드(요약)와 엑셀(상세 결과) 생성" data-in="판정 결과, Fail 분석, 종합 의견, 검토 필요사항" data-out="대시보드, 엑셀" data-next="7">
+            <div class="tag"><span class="who">코드</span>6</div>
+            <div class="name">대시보드(요약) · 엑셀(상세 결과) 생성</div>
+            <div class="desc">Pass 항목 · AI 4 · AI 5 경로가 모두 끝나면 실행</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 결과물 -->
+      <div class="row">
+        <div class="span3 center">
+          <div class="band outputs" id="out">
+            <div class="band-title">결과물</div>
+            <div class="items">
+              <div class="doc" style="margin:0"><span class="fi" style="background:#2a78d6">WEB</span><div><b>대시보드</b><span>Pass/Fail 현황 · 검토 필요사항 · 결과 및 분석</span></div></div>
+              <div class="doc" style="margin:0"><span class="fi" style="background:#1d7a45">XLS</span><div><b>엑셀</b><span>필드별 상세 결과</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 사람 7 -->
+      <div class="row">
+        <div class="span3 center" style="width:440px">
+          <div class="task human" id="h7"
+               data-t="7. 결과 검토와 문의 발송 여부 결정" data-in="대시보드, 엑셀" data-out="최종 결과, 문의 발송" data-next="종료">
+            <div class="tag"><span class="who">사람</span>7</div>
+            <div class="name">결과 검토 · 문의 발송 여부 결정</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 종료 -->
+      <div class="row">
+        <div class="span3 center">
+          <div class="endnode" id="end">최종 결과 · 문의 발송 → 종료</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="card par">
+      <h3>Parallel A</h3>
+      <div class="k">④ 다른 입력 × 다른 에이전트 · 합류: 코드 3</div>
+      <ul>
+        <li>2-a NVMe Spec</li>
+        <li>2-b Spec Gap</li>
+        <li>2-c Confluence 제품 사양</li>
+      </ul>
+      <h3 style="margin-top:12px">Parallel B</h3>
+      <div class="k">④ 다른 입력 × 다른 에이전트 · 합류: 코드 6</div>
+      <ul>
+        <li>4 Fail 항목 분석</li>
+        <li>5 검토 필요 항목 문의 작성</li>
+      </ul>
+    </div>
+    <div class="card rt">
+      <h3>Router</h3>
+      <div class="k">위치: 코드 3 이후 · 조건: 필드별 판정 상태</div>
+      <ul>
+        <li><span class="dot" style="background:var(--good)"></span>Pass → AI 호출 없이 코드 6</li>
+        <li><span class="dot" style="background:var(--critical)"></span>Fail → AI 4</li>
+        <li><span class="dot" style="background:var(--warning)"></span>검토 필요 → AI 5</li>
+        <li>검토 필요 0건 → AI 5 호출 안 함</li>
+        <li>Fail 0건 → AI 4는 종합 의견만 작성</li>
+      </ul>
+    </div>
+    <div class="card ge">
+      <h3>Gen / Eval</h3>
+      <div class="k">2-a ↔ 2-a-E · 2-b ↔ 2-b-E · 2-c ↔ 2-c-E · 최대 2회</div>
+      <ul>
+        <li>① 모든 필드에 기대값 또는 '정의 없음 / TBD' 명시</li>
+        <li>② 모든 기대값에 근거 문서(문서명·위치) 표시</li>
+        <li>③ 기대값이 근거 원문과 일치 (단위·비트 변환 포함)</li>
+      </ul>
+    </div>
+    <div class="card ge">
+      <h3>PASS / FAIL 처리</h3>
+      <ul>
+        <li>모든 기준 충족 → PASS → 코드 3</li>
+        <li>하나 이상 미충족 → FAIL → 문제 필드·사유를 같은 갈래 Generator에 전달해 수정 후 재검토</li>
+        <li>Evaluator는 직접 수정하지 않고 검토 결과만 전달</li>
+        <li>2회 초과 FAIL → 해당 필드 '검토 필요' 표시 후 코드 3</li>
+      </ul>
+    </div>
+  </div>
+  </section>
+
+  <!-- 5. 결과물 샘플 -->
+  <section class="sec" id="s5">
+    <h2><span class="n">5</span>결과물 샘플</h2>
+    <p class="lead">코드 6이 만드는 결과물의 구조: 대시보드(Pass/Fail 현황 · 검토 필요사항 · 결과 및 분석) + 엑셀(요약 · 상세 결과 · 검토 필요사항 · Fail 분석). 아래는 <code>reference/example.html</code>을 이 파일 안에 그대로 넣은 것입니다.</p>
+    <div class="sample-bar"><span>가상 제품 VSSD-Z200 샘플 · 탭(대시보드 / 엑셀 상세 결과)을 눌러 볼 수 있음</span><span>실제 실행 결과: final/IDverify_VSSD-X100_1VX0A1B0_W43_dashboard.html · .xlsx</span></div>
+    <iframe class="sample" title="결과물 샘플 (reference/example.html)" srcdoc="<!doctype html>
+<html lang=&quot;ko&quot;>
+<head>
+<meta charset=&quot;utf-8&quot;>
+<meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;>
+<title>ID 필드 검증 결과</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --surface-2: #f3f2ee;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.10);
+    --accent: #2a78d6;
+    --good: #0ca30c;
+    --warning: #fab219;
+    --critical: #d03b3b;
+    --good-wash: rgba(12, 163, 12, 0.10);
+    --warning-wash: rgba(250, 178, 25, 0.16);
+    --critical-wash: rgba(208, 59, 59, 0.10);
+    --xl-header: #e9eef5;
+    --xl-grid: #d6d9de;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme=&quot;light&quot;]) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --surface-2: #232321;
+      --text-primary: #f0efec;
+      --text-secondary: #c3c2b7;
+      --text-muted: #898781;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --border: rgba(255, 255, 255, 0.10);
+      --accent: #3987e5;
+      --good-wash: rgba(12, 163, 12, 0.18);
+      --warning-wash: rgba(250, 178, 25, 0.16);
+      --critical-wash: rgba(208, 59, 59, 0.20);
+      --xl-header: #262a30;
+      --xl-grid: #34373c;
+    }
+  }
+  :root[data-theme=&quot;dark&quot;] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-2: #232321;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --accent: #3987e5;
+    --good-wash: rgba(12, 163, 12, 0.18);
+    --warning-wash: rgba(250, 178, 25, 0.16);
+    --critical-wash: rgba(208, 59, 59, 0.20);
+    --xl-header: #262a30;
+    --xl-grid: #34373c;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, &quot;Segoe UI&quot;, &quot;Malgun Gothic&quot;, sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 16px 56px; }
+
+  header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+  header.top h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  header.top .sub { color: var(--text-secondary); margin: 0; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--text-secondary); font-size: 13px; }
+  .meta b { color: var(--text-primary); font-weight: 600; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--grid); margin-bottom: 20px; }
+  .tabs button {
+    appearance: none; border: 0; background: none; cursor: pointer;
+    padding: 10px 14px; font: inherit; font-weight: 600; color: var(--text-secondary);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .tabs button[aria-selected=&quot;true&quot;] { color: var(--text-primary); border-bottom-color: var(--accent); }
+  .tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .panel[hidden] { display: none; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  section { margin-bottom: 20px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  h2 .count { color: var(--text-muted); font-weight: 500; margin-left: 4px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .section-num { color: var(--text-muted); font-weight: 600; margin-right: 6px; }
+
+  /* KPI tiles */
+  .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .kpi .label { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 13px; }
+  .kpi .value { font-size: 30px; font-weight: 650; line-height: 1.2; margin-top: 4px; }
+  .kpi .value small { font-size: 14px; font-weight: 500; color: var(--text-muted); margin-left: 4px; }
+  .kpi .foot { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+
+  /* status marks */
+  .ico { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; font-size: 11px; font-weight: 700; color: #fff; flex: none; }
+  .ico.pass { background: var(--good); }
+  .ico.fail { background: var(--critical); }
+  .ico.review { background: var(--warning); color: #3a2a00; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 4px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--text-primary); }
+  .badge.pass { background: var(--good-wash); }
+  .badge.fail { background: var(--critical-wash); }
+  .badge.review { background: var(--warning-wash); }
+  .lvl { display: inline-block; padding: 1px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); }
+  .lvl.high { background: var(--critical-wash); }
+  .lvl.mid { background: var(--warning-wash); }
+  .lvl.low { background: var(--surface-2); }
+
+  /* stacked bars */
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .bars { display: grid; gap: 14px; }
+  .bar-row { display: grid; grid-template-columns: 150px 1fr 190px; align-items: center; gap: 12px; }
+  .bar-row .name { font-weight: 600; font-size: 13px; }
+  .bar-row .nums { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; text-align: right; }
+  .track { display: flex; gap: 2px; height: 22px; }
+  .seg { height: 100%; cursor: default; transition: opacity .12s; }
+  .seg:first-child { border-radius: 4px 0 0 4px; }
+  .seg:last-child { border-radius: 0 4px 4px 0; }
+  .track:hover .seg { opacity: .55; }
+  .track .seg:hover { opacity: 1; }
+  .seg.pass { background: var(--good); }
+  .seg.fail { background: var(--critical); }
+  .seg.review { background: var(--warning); }
+  .tip {
+    position: fixed; pointer-events: none; z-index: 10; display: none;
+    background: var(--surface); color: var(--text-primary); border: 1px solid var(--border);
+    box-shadow: 0 4px 16px rgba(0,0,0,.14); border-radius: 8px; padding: 8px 10px; font-size: 12px; min-width: 150px;
+  }
+  .tip .t { font-weight: 600; margin-bottom: 2px; }
+  .tip .r { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+  .tip .r b { color: var(--text-primary); margin-left: auto; font-variant-numeric: tabular-nums; }
+
+  .grid-2 { display: grid; grid-template-columns: 1.15fr 1fr; gap: 20px; }
+
+  /* tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+  th { color: var(--text-secondary); font-weight: 600; font-size: 12px; background: var(--surface-2); }
+  td.mono, .mono { font-family: ui-monospace, &quot;Cascadia Mono&quot;, Consolas, monospace; font-size: 12.5px; }
+  td.num { font-variant-numeric: tabular-nums; }
+  .table-scroll { overflow-x: auto; }
+
+  /* review items */
+  .review-list { display: grid; gap: 12px; }
+  .review-card { border: 1px solid var(--border); border-left: 4px solid var(--warning); border-radius: 10px; padding: 14px 16px; background: var(--surface); }
+  .review-card .hd { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 8px; }
+  .review-card .id { font-weight: 700; }
+  .review-card .field { font-family: ui-monospace, &quot;Cascadia Mono&quot;, Consolas, monospace; font-weight: 600; }
+  .review-card dl { display: grid; grid-template-columns: 92px 1fr; gap: 4px 12px; margin: 0 0 10px; font-size: 13px; }
+  .review-card dt { color: var(--text-muted); }
+  .review-card dd { margin: 0; }
+  details.draft { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; }
+  details.draft summary { cursor: pointer; font-weight: 600; font-size: 13px; }
+  details.draft pre { white-space: pre-wrap; font-family: inherit; font-size: 13px; margin: 10px 0 0; color: var(--text-secondary); }
+
+  /* fail analysis */
+  .fail-list { display: grid; gap: 12px; }
+  .fail-card { border: 1px solid var(--border); border-left: 4px solid var(--critical); border-radius: 10px; padding: 14px 16px; background: var(--surface); }
+  .fail-card .hd { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 10px; }
+  .fail-card .cmp { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+  .fail-card .cmp div { background: var(--surface-2); border-radius: 8px; padding: 8px 10px; }
+  .fail-card .cmp .k { font-size: 11px; color: var(--text-muted); display: block; }
+  .fail-card .cmp .v { font-family: ui-monospace, &quot;Cascadia Mono&quot;, Consolas, monospace; font-size: 13px; font-weight: 600; }
+  .fail-card p { margin: 4px 0; font-size: 13px; }
+  .fail-card p b { color: var(--text-secondary); font-weight: 600; margin-right: 6px; }
+
+  .opinion { border-left: 4px solid var(--accent); }
+  .opinion ul { margin: 0; padding-left: 18px; }
+  .opinion li { margin: 4px 0; }
+
+  /* excel view */
+  .xl { background: var(--surface); border: 1px solid var(--xl-grid); border-radius: 10px; overflow: hidden; }
+  .xl-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--xl-grid); }
+  .xl-file { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; }
+  .xl-file .xicon { width: 20px; height: 20px; border-radius: 4px; background: #1d7a45; color: #fff; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filters button { appearance: none; font: inherit; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); cursor: pointer; }
+  .filters button[aria-pressed=&quot;true&quot;] { background: var(--text-primary); color: var(--surface); border-color: var(--text-primary); }
+  .xl table { font-size: 12.5px; }
+  .xl th, .xl td { border: 1px solid var(--xl-grid); padding: 5px 8px; }
+  .xl th { background: var(--xl-header); color: var(--text-primary); position: sticky; top: 0; }
+  .xl th.rn, .xl td.rn { background: var(--xl-header); color: var(--text-muted); text-align: center; width: 36px; font-weight: 500; }
+  .xl tr.r-fail td:not(.rn) { background: var(--critical-wash); }
+  .xl tr.r-review td:not(.rn) { background: var(--warning-wash); }
+  .xl-body { max-height: 560px; overflow: auto; }
+  .xl-sheets { display: flex; gap: 2px; border-top: 1px solid var(--xl-grid); background: var(--surface-2); padding: 0 8px; overflow-x: auto; }
+  .xl-sheets button { appearance: none; border: 0; font: inherit; font-size: 12.5px; padding: 7px 14px; background: none; color: var(--text-secondary); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+  .xl-sheets button[aria-selected=&quot;true&quot;] { background: var(--surface); color: var(--text-primary); font-weight: 600; border-bottom-color: #1d7a45; }
+
+  @media (max-width: 860px) {
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .bar-row { grid-template-columns: 1fr; gap: 4px; }
+    .bar-row .nums { text-align: left; }
+    .fail-card .cmp { grid-template-columns: 1fr; }
+    .review-card dl { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class=&quot;wrap&quot;>
+
+  <header class=&quot;top&quot;>
+    <div>
+      <h1>Identify 필드 검증 결과</h1>
+      <p class=&quot;sub&quot;>VSSD-Z200 7.68TB · NVMe Identify Controller / Namespace</p>
+    </div>
+    <div class=&quot;meta&quot;>
+      <span>FW <b class=&quot;mono&quot;>2ZB1C0A3</b></span>
+      <span>검증일 <b>2026-10-16</b></span>
+      <span>기준 <b>NVMe Base 2.0 · Spec Gap v1.2 · 제품 사양 v9</b></span>
+      <span>회차 <b>W42</b></span>
+    </div>
+  </header>
+
+  <nav class=&quot;tabs&quot; role=&quot;tablist&quot;>
+    <button role=&quot;tab&quot; aria-selected=&quot;true&quot; aria-controls=&quot;p-dash&quot; id=&quot;t-dash&quot;>대시보드</button>
+    <button role=&quot;tab&quot; aria-selected=&quot;false&quot; aria-controls=&quot;p-xl&quot; id=&quot;t-xl&quot;>엑셀 상세 결과</button>
+  </nav>
+
+  <!-- ========== DASHBOARD ========== -->
+  <div class=&quot;panel&quot; id=&quot;p-dash&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;t-dash&quot;>
+
+    <section>
+      <h2><span class=&quot;section-num&quot;>1</span>Pass / Fail 현황</h2>
+      <div class=&quot;kpis&quot; id=&quot;kpis&quot;></div>
+      <div class=&quot;card&quot;>
+        <div class=&quot;legend&quot;>
+          <span><i class=&quot;swatch&quot; style=&quot;background:var(--good)&quot;></i>Pass</span>
+          <span><i class=&quot;swatch&quot; style=&quot;background:var(--critical)&quot;></i>Fail</span>
+          <span><i class=&quot;swatch&quot; style=&quot;background:var(--warning)&quot;></i>검토 필요</span>
+        </div>
+        <div class=&quot;bars&quot; id=&quot;bars&quot;></div>
+      </div>
+    </section>
+
+    <section>
+      <div class=&quot;section-head&quot;>
+        <h2><span class=&quot;section-num&quot;>2</span>검토 필요사항<span class=&quot;count&quot; id=&quot;review-count&quot;></span></h2>
+      </div>
+      <div class=&quot;review-list&quot; id=&quot;reviews&quot;></div>
+    </section>
+
+    <section>
+      <h2><span class=&quot;section-num&quot;>3</span>결과 및 분석</h2>
+      <div class=&quot;grid-2&quot;>
+        <div>
+          <h2 style=&quot;font-size:14px;color:var(--text-secondary)&quot;>Fail 항목별 원인 분석 · 영향도 · 조치 제안</h2>
+          <div class=&quot;fail-list&quot; id=&quot;fails&quot;></div>
+        </div>
+        <div>
+          <h2 style=&quot;font-size:14px;color:var(--text-secondary)&quot;>전체 종합 의견</h2>
+          <div class=&quot;card opinion&quot;>
+            <ul>
+              <li>검증 대상 48개 필드 중 <b>41개(85.4%) Pass</b>, <b>4개 Fail</b>, <b>3개 검토 필요</b>입니다.</li>
+              <li>Fail 4건 중 <b>OAES</b>(NS Attribute Notice 미설정)는 호스트의 Namespace 변경 감지에 영향을 주므로 <b>FW 수정이 최우선</b>입니다.</li>
+              <li><b>FR</b> 불일치는 검증에 사용한 FW 이미지가 대상 버전과 다를 가능성이 있어, 버전 확인 후 <b>전체 재검증</b>이 필요합니다.</li>
+              <li><b>ELPE</b>, <b>NSFEAT</b>는 공통 FW 기본값이 제품 정책에 반영되지 않은 사례로, 같은 유형의 누락이 다른 필드에도 있는지 점검을 권장합니다.</li>
+              <li>검토 필요 3건은 기준 문서 간 불일치(RTD3E), 기대값 미정(HCTMA), 근거 문서 부재(NOIOB)이며, 문의 회신 후 Spec Gap 문서에 반영해야 다음 회차부터 자동 판정이 가능합니다.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ========== EXCEL VIEW ========== -->
+  <div class=&quot;panel&quot; id=&quot;p-xl&quot; role=&quot;tabpanel&quot; aria-labelledby=&quot;t-xl&quot; hidden>
+    <div class=&quot;xl&quot;>
+      <div class=&quot;xl-bar&quot;>
+        <span class=&quot;xl-file&quot;><span class=&quot;xicon&quot;>X</span>IDverify_VSSD-Z200_2ZB1C0A3_W42.xlsx</span>
+        <div class=&quot;filters&quot; id=&quot;xl-filters&quot;></div>
+      </div>
+      <div class=&quot;xl-body&quot; id=&quot;xl-body&quot;></div>
+      <div class=&quot;xl-sheets&quot; role=&quot;tablist&quot; id=&quot;xl-sheets&quot;></div>
+    </div>
+  </div>
+
+</div>
+<div class=&quot;tip&quot; id=&quot;tip&quot;></div>
+
+<script>
+const S = { pass: 'Pass', fail: 'Fail', review: '검토 필요' };
+const ICON = { pass: '✓', fail: '✕', review: '!' };
+
+// [구조, 필드, Offset, 기대값, 실제값, 근거 문서, 판정, 비고]
+const ROWS = [
+  ['Controller','VID','1:0','0xF00D','0xf00d','제품 사양','pass',''],
+  ['Controller','SSVID','3:2','0xF00D','0xf00d','제품 사양','pass',''],
+  ['Controller','SN','23:4','ZB + 연도 2자리 + 일련번호 8자리','ZB2600087421','제품 사양','pass',''],
+  ['Controller','MN','63:24','VSSD-Z200 7.68TB','VSSD-Z200 7.68TB','제품 사양','pass',''],
+  ['Controller','FR','71:64','2ZB1C0A3','2ZB1C0A2','제품 사양','fail','검증 대상 FW와 버전 문자열 불일치'],
+  ['Controller','RAB','72','3','3','제품 사양','pass',''],
+  ['Controller','IEEE','75:73','acde48','acde48','제품 사양','pass',''],
+  ['Controller','CMIC','76','0x3','0x3','제품 사양','pass','Dual Port'],
+  ['Controller','MDTS','77','0x6 (256KB)','6','Spec Gap','pass',''],
+  ['Controller','CNTLID','79:78','포트별 고유값','0x1','NVMe Spec','pass',''],
+  ['Controller','VER','83:80','0x20000','0x20000','제품 사양','pass',''],
+  ['Controller','RTD3R','87:84','0x7A120 (500ms)','0x7a120','Spec Gap','pass',''],
+  ['Controller','RTD3E','91:88','문서 간 상이 (8s / 10s)','0x989680 (10s)','제품 사양 / Spec Gap','review','R-01'],
+  ['Controller','OAES','95:92','bit8 = 1 (0x100)','0x0','제품 사양','fail','NS Attribute Notice 미설정'],
+  ['Controller','CTRATT','99:96','0x80','0x80','제품 사양','pass',''],
+  ['Controller','CNTRLTYPE','111','1 (I/O)','1','제품 사양','pass',''],
+  ['Controller','OACS','257:256','0x5e','0x5e','제품 사양','pass',''],
+  ['Controller','ACL','258','3','3','제품 사양','pass',''],
+  ['Controller','AERL','259','3','3','제품 사양','pass',''],
+  ['Controller','FRMW','260','0x17','0x17','제품 사양','pass',''],
+  ['Controller','LPA','261','0x1e','0x1e','제품 사양','pass',''],
+  ['Controller','ELPE','262','63 (64 entries)','255','Spec Gap','fail','공통 FW 기본값 유지'],
+  ['Controller','NPSS','263','3 (PS0~PS3)','3','제품 사양','pass',''],
+  ['Controller','APSTA','265','0','0','Spec Gap','pass',''],
+  ['Controller','WCTEMP','267:266','345 (72℃)','345','제품 사양','pass',''],
+  ['Controller','CCTEMP','269:268','355 (82℃)','355','제품 사양','pass',''],
+  ['Controller','TNVMCAP','295:280','7,681,501,126,656','7681501126656','제품 사양','pass',''],
+  ['Controller','UNVMCAP','311:296','0','0','제품 사양','pass',''],
+  ['Controller','KAS','321:320','0','0','Spec Gap','pass',''],
+  ['Controller','HCTMA','323:322','TBD','0x1 (MNTMT 273 / MXTMT 358)','Spec Gap','review','R-02'],
+  ['Controller','SANICAP','331:328','0x3','0x3','Spec Gap','pass',''],
+  ['Controller','SQES','512','0x66','0x66','NVMe Spec','pass',''],
+  ['Controller','CQES','513','0x44','0x44','NVMe Spec','pass',''],
+  ['Controller','NN','519:516','64','64','제품 사양','pass',''],
+  ['Controller','ONCS','521:520','0x7c','0x7c','제품 사양 / Spec Gap','pass',''],
+  ['Controller','VWC','525','0x0','0','Spec Gap','pass','PLP 탑재'],
+  ['Namespace','NSZE','7:0','0x6FC7D256','0x6fc7d256','제품 사양','pass','4KB 기준'],
+  ['Namespace','NCAP','15:8','0x6FC7D256','0x6fc7d256','제품 사양','pass',''],
+  ['Namespace','NUSE','23:16','0x6FC7D256','0x6fc7d256','제품 사양','pass',''],
+  ['Namespace','NSFEAT','24','bit4 = 1 (0x10)','0x0','NVMe Spec','fail','NPWG 값 있으나 OPTPERF 미설정'],
+  ['Namespace','NLBAF','25','1','1','제품 사양','pass',''],
+  ['Namespace','FLBAS','26','0x1 (4KB)','0x1','제품 사양','pass',''],
+  ['Namespace','DPS','29','0x0','0','Spec Gap','pass',''],
+  ['Namespace','NMIC','30','0x1','0x1','Spec Gap','pass',''],
+  ['Namespace','DLFEAT','33','0x9','9','제품 사양','pass',''],
+  ['Namespace','NOIOB','47:46','근거 문서 없음','32','없음','review','R-03'],
+  ['Namespace','NPWG','65:64','7 (32KB)','7','제품 사양','pass',''],
+  ['Namespace','LBAF1','135:132','lbads 12, ms 0','lbads:12 ms:0','제품 사양','pass',''],
+];
+
+const REVIEWS = [
+  { id: 'R-01', field: 'RTD3E', struct: 'Identify Controller', actual: '0x989680 (10s)',
+    reason: '기준 문서 간 값 상이 — 제품 사양 v9는 8s, Spec Gap v1.2는 10s',
+    to: '제품 기획 담당',
+    draft: `제목: [VSSD-Z200] Identify RTD3E 기대값 확인 요청\n\n안녕하세요, Solution PE Server SSD입니다.\nFW 2ZB1C0A3 Identify 필드 검증 중 RTD3E(Byte 91:88) 기대값이 문서 간 상이하여 확인 요청드립니다.\n\n- 제품 사양 v9: 8,000,000us (8s)\n- Spec Gap v1.2: 10,000,000us (10s)\n- 실제 측정값: 0x989680 (10s)\n\n어느 문서 기준이 최신인지 확인 부탁드리며, 8s가 맞다면 FW 수정 요청을 함께 진행하겠습니다.\n회신 요청일: 10/21` },
+  { id: 'R-02', field: 'HCTMA', struct: 'Identify Controller', actual: '0x1 (MNTMT 273 / MXTMT 358)',
+    reason: 'Spec Gap에 기대값 TBD — 실제로는 HCTM 지원으로 보고됨',
+    to: '열 설계 담당',
+    draft: `제목: [VSSD-Z200] HCTMA 지원 여부 및 MNTMT/MXTMT 값 확정 요청\n\n안녕하세요, Solution PE Server SSD입니다.\nSpec Gap v1.2에서 HCTMA(Byte 323:322)가 TBD로 남아 있으나, FW 2ZB1C0A3에서는 HCTM 지원(0x1)으로 보고되고 있습니다.\n\n- MNTMT: 273K (0℃)\n- MXTMT: 358K (85℃)\n\n1) HCTM 지원이 제품 정책에 맞는지\n2) MNTMT / MXTMT 값이 열 설계 기준과 일치하는지\n확인 부탁드립니다. 확정 시 Spec Gap 문서에 반영하겠습니다.` },
+  { id: 'R-03', field: 'NOIOB', struct: 'Identify Namespace', actual: '32 (128KB @4KB)',
+    reason: 'Spec Gap·제품 사양 어디에도 기대값 근거 없음',
+    to: 'FW 개발 담당',
+    draft: `제목: [VSSD-Z200] Identify Namespace NOIOB 설정 근거 문의\n\n안녕하세요, Solution PE Server SSD입니다.\nFW 2ZB1C0A3의 NOIOB(Byte 47:46)가 32(4KB 기준 128KB)로 보고되나, 제품 사양과 Spec Gap 문서에 관련 정의가 없어 검증 기준을 정할 수 없습니다.\n\n- 128KB 경계값의 설계 근거\n- 고객 요구사항 반영 여부\n를 공유해 주시면 Spec Gap 문서에 기대값으로 등록하겠습니다.` },
+];
+
+const FAILS = [
+  { field: 'OAES', struct: 'Identify Controller', exp: 'bit8 = 1 (0x100)', act: '0x0', src: '제품 사양 v9 §3.4',
+    cause: 'Namespace Attribute Notices 지원이 사양에 명시되어 있으나 FW 빌드 옵션에서 해당 AEN 비트 설정이 빠진 것으로 추정',
+    impact: ['high', '높음', 'NS 생성·삭제 시 호스트가 변경을 감지하지 못해 고객 NS 관리 시나리오 실패 가능'],
+    action: 'FW 수정 요청 (OAES bit8 설정) 후 재검증' },
+  { field: 'FR', struct: 'Identify Controller', exp: '2ZB1C0A3', act: '2ZB1C0A2', src: '제품 사양 v9 §2 / 배포 노트',
+    cause: '검증 장비에 이전 FW 이미지가 적용되었거나, 신규 빌드에서 버전 문자열이 갱신되지 않음',
+    impact: ['mid', '중간', '이번 회차 검증 결과 전체의 유효성이 불확실함'],
+    action: '장비 FW 버전 재확인 → 대상 FW로 재다운로드 후 전체 재검증' },
+  { field: 'NSFEAT', struct: 'Identify Namespace', exp: 'bit4 = 1 (0x10)', act: '0x0', src: 'NVMe Base 2.0 Identify NS NSFEAT',
+    cause: 'NPWG 등 성능 최적화 필드는 채워졌으나 유효 비트(OPTPERF)가 설정되지 않음',
+    impact: ['mid', '중간', '호스트가 NPWG/NPWA 값을 무시하여 최적 IO 정렬이 적용되지 않을 수 있음'],
+    action: 'FW 수정 요청 (NSFEAT bit4 설정)' },
+  { field: 'ELPE', struct: 'Identify Controller', exp: '63 (64 entries)', act: '255', src: 'Spec Gap v1.2 #7',
+    cause: '공통 FW 기본값(256 entries)이 제품 정책(64 entries)으로 변경되지 않음',
+    impact: ['low', '낮음', '실제 보관 개수와 보고값 불일치 — 호스트 Error Log 조회 시 빈 항목 반환'],
+    action: 'FW 수정 또는 정책 변경 시 Spec Gap 문서 갱신' },
+];
+
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t).replace(/[&amp;<>]/g, c => ({ '&amp;': '&amp;amp;', '<': '&amp;lt;', '>': '&amp;gt;' }[c]));
+const badge = (k) => `<span class=&quot;badge ${k}&quot;><span class=&quot;ico ${k}&quot; aria-hidden=&quot;true&quot;>${ICON[k]}</span>${S[k]}</span>`;
+
+function tally(rows) {
+  const c = { pass: 0, fail: 0, review: 0 };
+  rows.forEach(r => c[r[6]]++);
+  return c;
+}
+
+/* KPI tiles */
+const all = tally(ROWS);
+const total = ROWS.length;
+const pct = (n, d = total) => (n / d * 100).toFixed(1);
+$('#kpis').innerHTML = `
+  <div class=&quot;kpi&quot;><div class=&quot;label&quot;>검증 필드</div><div class=&quot;value&quot;>${total}<small>개</small></div><div class=&quot;foot&quot;>Controller 36 · Namespace 12</div></div>
+  <div class=&quot;kpi&quot;><div class=&quot;label&quot;><span class=&quot;ico pass&quot;>✓</span>Pass</div><div class=&quot;value&quot;>${all.pass}<small>${pct(all.pass)}%</small></div><div class=&quot;foot&quot;>기준 문서와 일치</div></div>
+  <div class=&quot;kpi&quot;><div class=&quot;label&quot;><span class=&quot;ico fail&quot;>✕</span>Fail</div><div class=&quot;value&quot;>${all.fail}<small>${pct(all.fail)}%</small></div><div class=&quot;foot&quot;>FW 수정 3 · 재검증 1</div></div>
+  <div class=&quot;kpi&quot;><div class=&quot;label&quot;><span class=&quot;ico review&quot;>!</span>검토 필요</div><div class=&quot;value&quot;>${all.review}<small>${pct(all.review)}%</small></div><div class=&quot;foot&quot;>문의 발송 대상</div></div>`;
+
+/* Stacked bars */
+const groups = [
+  ['전체', ROWS],
+  ['Identify Controller', ROWS.filter(r => r[0] === 'Controller')],
+  ['Identify Namespace', ROWS.filter(r => r[0] === 'Namespace')],
+];
+$('#bars').innerHTML = groups.map(([name, rows]) => {
+  const c = tally(rows), n = rows.length;
+  const segs = ['pass', 'fail', 'review'].filter(k => c[k]).map(k =>
+    `<div class=&quot;seg ${k}&quot; style=&quot;width:${c[k] / n * 100}%&quot; data-g=&quot;${name}&quot; data-k=&quot;${k}&quot; data-n=&quot;${c[k]}&quot; data-t=&quot;${n}&quot;></div>`).join('');
+  return `<div class=&quot;bar-row&quot;><div class=&quot;name&quot;>${name}</div><div class=&quot;track&quot;>${segs}</div>
+    <div class=&quot;nums&quot;>Pass ${c.pass} · Fail ${c.fail} · 검토 ${c.review} / ${n}</div></div>`;
+}).join('');
+
+const tip = $('#tip');
+document.querySelectorAll('.seg').forEach(el => {
+  el.addEventListener('mousemove', e => {
+    const k = el.dataset.k;
+    const names = ROWS.filter(r => r[6] === k &amp;&amp; (el.dataset.g === '전체' || ('Identify ' + r[0]) === el.dataset.g)).map(r => r[1]);
+    tip.innerHTML = `<div class=&quot;t&quot;>${el.dataset.g}</div>
+      <div class=&quot;r&quot;><span class=&quot;ico ${k}&quot;>${ICON[k]}</span>${S[k]}<b>${el.dataset.n}건 · ${pct(el.dataset.n, el.dataset.t)}%</b></div>
+      ${k !== 'pass' ? `<div class=&quot;r&quot; style=&quot;margin-top:4px&quot;>${names.join(', ')}</div>` : ''}`;
+    tip.style.display = 'block';
+    const x = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
+    tip.style.left = x + 'px';
+    tip.style.top = (e.clientY + 14) + 'px';
+  });
+  el.addEventListener('mouseleave', () => tip.style.display = 'none');
+});
+
+/* Review items */
+$('#review-count').textContent = `${REVIEWS.length}건`;
+$('#reviews').innerHTML = REVIEWS.map(r => `
+  <div class=&quot;review-card&quot;>
+    <div class=&quot;hd&quot;>${badge('review')}<span class=&quot;id&quot;>${r.id}</span><span class=&quot;field&quot;>${r.field}</span><span style=&quot;color:var(--text-muted);font-size:12px&quot;>${r.struct}</span></div>
+    <dl>
+      <dt>실제값</dt><dd class=&quot;mono&quot;>${esc(r.actual)}</dd>
+      <dt>검토 사유</dt><dd>${esc(r.reason)}</dd>
+      <dt>문의 대상</dt><dd>${esc(r.to)}</dd>
+    </dl>
+    <details class=&quot;draft&quot;><summary>문의 초안 보기</summary><pre>${esc(r.draft)}</pre></details>
+  </div>`).join('');
+
+/* Fail analysis */
+$('#fails').innerHTML = FAILS.map(f => `
+  <div class=&quot;fail-card&quot;>
+    <div class=&quot;hd&quot;>${badge('fail')}<span class=&quot;field mono&quot; style=&quot;font-weight:700&quot;>${f.field}</span><span style=&quot;color:var(--text-muted);font-size:12px&quot;>${f.struct}</span>
+      <span style=&quot;margin-left:auto&quot;>영향도 <span class=&quot;lvl ${f.impact[0]}&quot;>${f.impact[1]}</span></span></div>
+    <div class=&quot;cmp&quot;>
+      <div><span class=&quot;k&quot;>기대값</span><span class=&quot;v&quot;>${esc(f.exp)}</span></div>
+      <div><span class=&quot;k&quot;>실제값</span><span class=&quot;v&quot;>${esc(f.act)}</span></div>
+      <div><span class=&quot;k&quot;>근거 문서</span><span class=&quot;v&quot; style=&quot;font-family:inherit;font-weight:500&quot;>${esc(f.src)}</span></div>
+    </div>
+    <p><b>예상 원인</b>${esc(f.cause)}</p>
+    <p><b>영향</b>${esc(f.impact[2])}</p>
+    <p><b>조치 제안</b>${esc(f.action)}</p>
+  </div>`).join('');
+
+/* Excel view */
+const SHEETS = {
+  '요약': () => {
+    const rows = [
+      ['제품', 'VSSD-Z200 7.68TB'], ['FW', '2ZB1C0A3'], ['검증일', '2026-10-16'], ['회차', 'W42'],
+      ['기준 문서', 'NVMe Base 2.0 / Spec Gap v1.2 / 제품 사양 v9'],
+      ['검증 필드 수', total], ['Pass', `${all.pass} (${pct(all.pass)}%)`], ['Fail', `${all.fail} (${pct(all.fail)}%)`], ['검토 필요', `${all.review} (${pct(all.review)}%)`],
+      ['종합 의견', 'OAES FW 수정 최우선, FR 불일치로 대상 FW 확인 후 전체 재검증 필요. 검토 필요 3건은 문의 회신 후 Spec Gap 반영.'],
+    ];
+    return xlTable(['항목', '내용'], rows.map(r => ({ cells: r })));
+  },
+  '상세 결과': (filter) => {
+    const rows = ROWS.filter(r => filter === 'all' || r[6] === filter);
+    return xlTable(['No', '구분', '필드', 'Byte Offset', '기대값', '실제값', '근거 문서', '판정', '비고'],
+      rows.map(r => ({ cls: 'r-' + r[6], cells: [ROWS.indexOf(r) + 1, 'Identify ' + r[0], r[1], r[2], r[3], r[4], r[5], { html: badge(r[6]) }, r[7]] })));
+  },
+  '검토 필요사항': () => xlTable(['ID', '필드', '구분', '실제값', '검토 사유', '문의 대상', '문의 초안'],
+    REVIEWS.map(r => ({ cls: 'r-review', cells: [r.id, r.field, r.struct, r.actual, r.reason, r.to, { html: `<div style=&quot;white-space:pre-wrap;min-width:320px&quot;>${esc(r.draft)}</div>` }] }))),
+  'Fail 분석': () => xlTable(['필드', '구분', '기대값', '실제값', '근거 문서', '예상 원인', '영향도', '영향', '조치 제안'],
+    FAILS.map(f => ({ cls: 'r-fail', cells: [f.field, f.struct, f.exp, f.act, f.src, f.cause, { html: `<span class=&quot;lvl ${f.impact[0]}&quot;>${f.impact[1]}</span>` }, f.impact[2], f.action] }))),
+};
+
+function xlTable(head, rows) {
+  const cols = head.map((_, i) => String.fromCharCode(65 + i));
+  return `<table><thead>
+    <tr><th class=&quot;rn&quot;></th>${cols.map(c => `<th style=&quot;text-align:center;font-weight:500;color:var(--text-muted)&quot;>${c}</th>`).join('')}</tr>
+    <tr><th class=&quot;rn&quot;>1</th>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>
+    ${rows.map((r, i) => `<tr class=&quot;${r.cls || ''}&quot;><td class=&quot;rn&quot;>${i + 2}</td>${r.cells.map(c =>
+      `<td${typeof c === 'number' ? ' class=&quot;num&quot;' : ''}>${c &amp;&amp; c.html ? c.html : esc(c)}</td>`).join('')}</tr>`).join('')}
+  </tbody></table>`;
+}
+
+let sheet = '상세 결과', filter = 'all';
+function renderXl() {
+  $('#xl-sheets').innerHTML = Object.keys(SHEETS).map(n => `<button role=&quot;tab&quot; aria-selected=&quot;${n === sheet}&quot;>${n}</button>`).join('');
+  $('#xl-filters').innerHTML = sheet === '상세 결과'
+    ? [['all', `전체 ${total}`], ['pass', `Pass ${all.pass}`], ['fail', `Fail ${all.fail}`], ['review', `검토 필요 ${all.review}`]]
+        .map(([k, l]) => `<button data-f=&quot;${k}&quot; aria-pressed=&quot;${k === filter}&quot;>${l}</button>`).join('')
+    : '';
+  $('#xl-body').innerHTML = SHEETS[sheet](filter);
+}
+$('#xl-sheets').addEventListener('click', e => { if (e.target.tagName === 'BUTTON') { sheet = e.target.textContent; renderXl(); } });
+$('#xl-filters').addEventListener('click', e => { if (e.target.dataset.f) { filter = e.target.dataset.f; renderXl(); } });
+renderXl();
+
+/* Tabs */
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+  document.querySelectorAll('.panel').forEach(p => p.hidden = p.id !== b.getAttribute('aria-controls'));
+}));
+</script>
+</body>
+</html>
+"></iframe>
+  </section>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+// AI Task 상자에 담당 Sub Agent 이름 표시 (.claude/agents/)
+const AGENTS = {
+  g2a: 'nvme-spec-expected-gen', e2a: 'nvme-spec-expected-eval',
+  g2b: 'spec-gap-expected-gen', e2b: 'spec-gap-expected-eval',
+  g2c: 'product-spec-expected-gen', e2c: 'product-spec-expected-eval',
+  a4: 'fail-analysis', a5: 'review-inquiry-writer',
+};
+for (const [id, name] of Object.entries(AGENTS)) {
+  const box = document.getElementById(id);
+  let chips = box.querySelector('.chips');
+  if (!chips) {
+    chips = document.createElement('div');
+    chips.className = 'chips';
+    box.querySelector('.note') ? box.insertBefore(chips, box.querySelector('.note')) : box.appendChild(chips);
+  }
+  const c = document.createElement('span');
+  c.className = 'chip agent';
+  c.textContent = name;
+  chips.prepend(c);
+}
+</script>
+<script>
+const diagram = document.getElementById('diagram');
+const svg = document.getElementById('edges');
+const NS = 'http://www.w3.org/2000/svg';
+
+function box(id) {
+  const r = document.getElementById(id).getBoundingClientRect();
+  const o = diagram.getBoundingClientRect();
+  const l = r.left - o.left, t = r.top - o.top;
+  return { l, t, r: l + r.width, b: t + r.height, cx: l + r.width / 2, cy: t + r.height / 2, w: r.width, h: r.height };
+}
+
+function el(tag, attrs, parent = svg) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  parent.appendChild(n);
+  return n;
+}
+
+function edge(points, cls = '') {
+  const d = points.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const marker = cls.includes('loop') ? 'ah-loop' : cls.includes('route') ? 'ah-route' : 'ah';
+  el('path', { d, class: 'e ' + cls, 'marker-end': `url(#${marker})` });
+}
+
+function label(x, y, text, opts = {}) {
+  const g = el('g', {});
+  let tx = x;
+  if (opts.dot) {
+    el('circle', { cx: x + 4, cy: y - 4, r: 4.5, style: `fill:var(${opts.dot})` }, g);
+    tx = x + 12;
+  }
+  const t = el('text', { x: tx, y, class: 'lbl ' + (opts.cls || ''), 'text-anchor': opts.anchor || 'start' }, g);
+  t.textContent = text;
+}
+
+function draw() {
+  svg.setAttribute('width', diagram.scrollWidth);
+  svg.setAttribute('height', diagram.scrollHeight);
+  svg.innerHTML = '';
+  const defs = el('defs', {});
+  [['ah', '--line'], ['ah-loop', '--geneval'], ['ah-route', '--router']].forEach(([id, v]) => {
+    const m = el('marker', { id, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
+    el('path', { d: 'M0 0 L10 5 L0 10 z', style: `fill:var(${v})` }, m);
+  });
+
+  const C1 = box('c1'), LOG = box('in-log');
+  // 입력: nvme-cli 로그 → 코드 1
+  edge([[C1.cx, LOG.b], [C1.cx, C1.t]], 'data');
+
+  // 입력 문서 → 각 Gen
+  [['in-spec', 'g2a'], ['in-gap', 'g2b'], ['in-conf', 'g2c']].forEach(([i, g]) => {
+    const I = box(i), G = box(g);
+    const x = Math.min(Math.max(I.cx, G.l + 24), G.r - 24);
+    edge([[x, I.b], [x, G.t]], 'data');
+  });
+
+  // 코드 1 → 2-a, 2-b, 2-c (필드 목록)
+  const gens = ['g2a', 'g2b', 'g2c'].map(box);
+  const busY = Math.min(...gens.map(g => g.t)) - 14;
+  gens.forEach(G => {
+    const gx = G.l + G.w * 0.22;
+    edge([[C1.r, C1.t + 16], [C1.r + 12, C1.t + 16], [C1.r + 12, busY], [gx, busY], [gx, G.t]]);
+  });
+  label(C1.r - 4, busY - 6, '필드 목록', { anchor: 'end' });
+
+  // Gen → Eval, FAIL 루프
+  [['g2a', 'e2a'], ['g2b', 'e2b'], ['g2c', 'e2c']].forEach(([g, e]) => {
+    const G = box(g), E = box(e);
+    edge([[G.cx, G.b], [G.cx, E.t]]);
+    const lx = E.r + 22;
+    edge([[E.r, E.cy], [lx, E.cy], [lx, G.cy], [G.r, G.cy]], 'loop');
+    label(lx + 5, (G.b + E.t) / 2 + 4, 'FAIL', { cls: 'loop' });
+  });
+
+  // Eval PASS → 코드 3 (세 갈래 합류)
+  const C3 = box('c3'), PA = box('parA');
+  const my = (PA.b + C3.t) / 2;
+  ['e2a', 'e2b', 'e2c'].forEach(e => {
+    const E = box(e);
+    edge([[E.cx, E.b], [E.cx, my], [C3.cx, my], [C3.cx, C3.t]]);
+    label(E.cx + 6, E.b + 16, 'PASS');
+  });
+
+  // 코드 1 필드별 실제값 → 코드 3
+  edge([[C1.cx, C1.b], [C1.cx, C3.cy], [C3.l, C3.cy]], 'data');
+  label(C1.cx + 8, C1.b + 22, '필드별 실제값');
+
+  // 코드 3 → Router
+  const R = box('router');
+  edge([[C3.cx, C3.b], [R.cx, R.t]]);
+
+  // Router 분기
+  const A4 = box('a4'), A5 = box('a5'), PB = box('parB'), C6 = box('c6');
+  const by = R.b + 18;
+  edge([[R.cx, R.b], [R.cx, by], [A4.cx, by], [A4.cx, A4.t]], 'route');
+  edge([[R.cx, R.b], [R.cx, by], [A5.cx, by], [A5.cx, A5.t]], 'route');
+  label(A4.cx + 8, by + 18, 'Fail', { dot: '--critical' });
+  label(A5.cx + 8, by + 18, '검토 필요', { dot: '--warning' });
+  edge([[R.l, R.cy], [C1.cx, R.cy], [C1.cx, C6.cy], [C6.l, C6.cy]], 'route');
+  label(C1.cx + 8, R.cy + 22, 'Pass', { dot: '--good' });
+  label(C1.cx + 8, R.cy + 40, 'AI 호출 없이 코드 6');
+
+  // AI 4, AI 5 → 코드 6
+  const my2 = (PB.b + C6.t) / 2;
+  [A4, A5].forEach(A => edge([[A.cx, A.b], [A.cx, my2], [C6.cx, my2], [C6.cx, C6.t]]));
+
+  // 코드 6 → 결과물 → 사람 7 → 종료
+  const OUT = box('out'), H7 = box('h7'), END = box('end');
+  edge([[C6.cx, C6.b], [OUT.cx, OUT.t]]);
+  edge([[OUT.cx, OUT.b], [H7.cx, H7.t]]);
+  edge([[H7.cx, H7.b], [END.cx, END.t]]);
+}
+
+draw();
+new ResizeObserver(draw).observe(diagram);
+if (document.fonts) document.fonts.ready.then(draw);
+
+// Tooltip
+const tip = document.getElementById('tip');
+document.querySelectorAll('.task').forEach(t => {
+  t.addEventListener('mousemove', e => {
+    tip.innerHTML = `<h4>${t.dataset.t}</h4><dl>
+      <dt>입력</dt><dd>${t.dataset.in}</dd>
+      <dt>출력</dt><dd>${t.dataset.out}</dd>
+      <dt>다음</dt><dd>${t.dataset.next}</dd></dl>`;
+    tip.style.display = 'block';
+    const x = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 10);
+    const y = Math.min(e.clientY + 14, window.innerHeight - tip.offsetHeight - 10);
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  });
+  t.addEventListener('mouseleave', () => tip.style.display = 'none');
+});
+</script>
+</body>
+</html>

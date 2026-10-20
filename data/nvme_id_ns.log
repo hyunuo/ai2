@@ -1,0 +1,35 @@
+$ nvme id-ns /dev/nvme0n1
+NVME Identify Namespace 1:
+nsze    : 0x37e3ee56
+ncap    : 0x37e3ee56
+nuse    : 0x37e3ee56
+nsfeat  : 0
+nlbaf   : 1
+flbas   : 0x1
+mc      : 0
+dpc     : 0
+dps     : 0
+nmic    : 0x1
+rescap  : 0xff
+fpi     : 0x80
+dlfeat  : 9
+nawun   : 0
+nawupf  : 0
+nacwu   : 0
+nabsn   : 0
+nabo    : 0
+nabspf  : 0
+noiob   : 0
+nvmcap  : 3840755982336
+mssrl   : 0
+mcl     : 0
+msrc    : 0
+nulbaf  : 0
+anagrpid: 0
+nsattr  : 0
+nvmsetid: 0
+endgid  : 1
+nguid   : acde4800000012345000000000000001
+eui64   : acde480000012345
+lbaf  0 : ms:0   lbads:9  rp:0x2
+lbaf  1 : ms:0   lbads:12 rp:0 (in use)

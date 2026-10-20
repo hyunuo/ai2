@@ -1,0 +1,9 @@
+{
+  "task": "2-b-E",
+  "target": "output/expected_spec_gap.json",
+  "target_iteration": 1,
+  "result": "PASS",
+  "checked_fields": 121,
+  "criteria": { "1": "PASS", "2": "PASS", "3": "PASS" },
+  "issues": []
+}

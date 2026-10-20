@@ -1,0 +1,9 @@
+{
+  "task": "2-c-E",
+  "target": "output/expected_product_spec.json",
+  "target_iteration": 2,
+  "result": "PASS",
+  "checked_fields": 121,
+  "criteria": { "1": "PASS", "2": "PASS", "3": "PASS" },
+  "issues": []
+}

@@ -1,0 +1,89 @@
+==============================================================
+[Confluence Export] VSSD-X100 제품 사양 (Product Specification)
+Space: Server SSD PE / Page Version: 12 / Last updated: 2026-09-18
+※ 본 문서는 실습용 가상 제품 사양입니다.
+==============================================================
+
+1. 제품 개요
+--------------------------------------------------------------
+- 제품명(Model Number)   : VSSD-X100 3.84TB
+- 제품군                 : Server/Datacenter NVMe SSD
+- Form Factor            : U.2 (15mm)
+- Interface              : PCIe Gen5 x4 (Dual Port, x2 + x2 지원)
+- NVMe 버전              : NVM Express Base Specification 2.0
+- 사용자 용량            : 3.84TB (1TB = 10^12 Bytes 기준)
+                           = 3,840,755,982,336 Bytes
+- Power Loss Protection  : 지원 (Volatile Write Cache 없음)
+
+2. 식별 정보
+--------------------------------------------------------------
+- PCI Vendor ID (VID)           : 0xC0DE
+- PCI Subsystem Vendor ID (SSVID): 0xC0DE
+- IEEE OUI                      : AC-DE-48
+- Model Number 표기             : "VSSD-X100 3.84TB" (40 Bytes, 뒤쪽 공백 패딩)
+- Serial Number 규칙            : "VX" + 제조연도 2자리 + 일련번호 8자리 (총 12자, 뒤쪽 공백 패딩)
+                                  예) VX2600012345
+- Firmware Revision (양산 FW)   : 1VX0A1B0
+
+3. Controller 기능
+--------------------------------------------------------------
+- Controller Type               : I/O Controller
+- 다중 포트 / 다중 컨트롤러     : 지원 (Dual Port, 포트당 1개 Controller)
+- 최대 Namespace 수             : 32
+- 최대 데이터 전송 크기 (MDTS)  : 128KB
+- Firmware Slot                 : 4개 (Slot 1 Read-only)
+- Reset 없는 FW Activation      : 지원
+- Admin 명령 지원
+  * Security Send/Receive       : 지원
+  * Format NVM                  : 지원
+  * Firmware Download/Commit    : 지원
+  * Namespace Management        : 지원
+  * Device Self-test            : 지원
+  * NVMe-MI Send/Receive        : 지원
+  * Directives                  : 미지원
+- I/O 명령 지원
+  * Dataset Management(Deallocate) : 지원
+  * Write Zeroes                   : 지원
+  * Reservations                   : 지원
+  * Timestamp (Set/Get Features)   : 지원
+  * Save/Select (Set/Get Features) : 지원
+  * Compare                        : 미지원
+  * Write Uncorrectable            : 미지원
+
+4. Namespace / LBA Format
+--------------------------------------------------------------
+- 지원 LBA Format
+  * LBAF0 : 512B, Metadata 0B
+  * LBAF1 : 4096B, Metadata 0B (Best Performance)
+- 출하 기본 포맷               : LBAF1 (4KB)
+- End-to-end Protection(PI)    : 미지원
+- Deallocate 이후 Read 결과    : 0x00 반환
+- Write Zeroes 시 Deallocate   : 지원
+
+5. 전력 (Power State)
+--------------------------------------------------------------
+- 지원 Power State : 3개 (모두 Operational)
+  * PS0 : 최대 25.00W
+  * PS1 : 최대 18.00W
+  * PS2 : 최대 12.00W
+- APST : 미사용
+
+6. 온도
+--------------------------------------------------------------
+- Warning Composite Temperature (WCTEMP)  : 70℃
+- Critical Composite Temperature (CCTEMP) : 80℃
+- 동작 온도 : 0℃ ~ 70℃ (Case 기준)
+
+7. 데이터 삭제 (Sanitize / Format)
+--------------------------------------------------------------
+- Sanitize Crypto Erase  : 지원
+- Sanitize Block Erase   : 지원
+- Sanitize Overwrite     : 미지원
+- Format NVM 적용 범위   : Namespace 단위
+- Format 시 Crypto Erase : 지원
+
+8. 변경 이력
+--------------------------------------------------------------
+- v12 (2026-09-18) : 온도 항목 업데이트 예정 표기 (방열 설계 변경 진행 중, 확정 전까지 기존 값 유지)
+- v11 (2026-08-01) : MDTS 128KB 확정
+- v10 (2026-07-03) : Dual Port 사양 추가

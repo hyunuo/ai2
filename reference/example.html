@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ID 필드 검증 결과</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --surface-2: #f3f2ee;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.10);
+    --accent: #2a78d6;
+    --good: #0ca30c;
+    --warning: #fab219;
+    --critical: #d03b3b;
+    --good-wash: rgba(12, 163, 12, 0.10);
+    --warning-wash: rgba(250, 178, 25, 0.16);
+    --critical-wash: rgba(208, 59, 59, 0.10);
+    --xl-header: #e9eef5;
+    --xl-grid: #d6d9de;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --surface-2: #232321;
+      --text-primary: #f0efec;
+      --text-secondary: #c3c2b7;
+      --text-muted: #898781;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --border: rgba(255, 255, 255, 0.10);
+      --accent: #3987e5;
+      --good-wash: rgba(12, 163, 12, 0.18);
+      --warning-wash: rgba(250, 178, 25, 0.16);
+      --critical-wash: rgba(208, 59, 59, 0.20);
+      --xl-header: #262a30;
+      --xl-grid: #34373c;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-2: #232321;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --accent: #3987e5;
+    --good-wash: rgba(12, 163, 12, 0.18);
+    --warning-wash: rgba(250, 178, 25, 0.16);
+    --critical-wash: rgba(208, 59, 59, 0.20);
+    --xl-header: #262a30;
+    --xl-grid: #34373c;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 16px 56px; }
+
+  header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+  header.top h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  header.top .sub { color: var(--text-secondary); margin: 0; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--text-secondary); font-size: 13px; }
+  .meta b { color: var(--text-primary); font-weight: 600; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--grid); margin-bottom: 20px; }
+  .tabs button {
+    appearance: none; border: 0; background: none; cursor: pointer;
+    padding: 10px 14px; font: inherit; font-weight: 600; color: var(--text-secondary);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .tabs button[aria-selected="true"] { color: var(--text-primary); border-bottom-color: var(--accent); }
+  .tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .panel[hidden] { display: none; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  section { margin-bottom: 20px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  h2 .count { color: var(--text-muted); font-weight: 500; margin-left: 4px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .section-num { color: var(--text-muted); font-weight: 600; margin-right: 6px; }
+
+  /* KPI tiles */
+  .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .kpi .label { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 13px; }
+  .kpi .value { font-size: 30px; font-weight: 650; line-height: 1.2; margin-top: 4px; }
+  .kpi .value small { font-size: 14px; font-weight: 500; color: var(--text-muted); margin-left: 4px; }
+  .kpi .foot { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+
+  /* status marks */
+  .ico { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; font-size: 11px; font-weight: 700; color: #fff; flex: none; }
+  .ico.pass { background: var(--good); }
+  .ico.fail { background: var(--critical); }
+  .ico.review { background: var(--warning); color: #3a2a00; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 4px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--text-primary); }
+  .badge.pass { background: var(--good-wash); }
+  .badge.fail { background: var(--critical-wash); }
+  .badge.review { background: var(--warning-wash); }
+  .lvl { display: inline-block; padding: 1px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); }
+  .lvl.high { background: var(--critical-wash); }
+  .lvl.mid { background: var(--warning-wash); }
+  .lvl.low { background: var(--surface-2); }
+
+  /* stacked bars */
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .bars { display: grid; gap: 14px; }
+  .bar-row { display: grid; grid-template-columns: 150px 1fr 190px; align-items: center; gap: 12px; }
+  .bar-row .name { font-weight: 600; font-size: 13px; }
+  .bar-row .nums { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; text-align: right; }
+  .track { display: flex; gap: 2px; height: 22px; }
+  .seg { height: 100%; cursor: default; transition: opacity .12s; }
+  .seg:first-child { border-radius: 4px 0 0 4px; }
+  .seg:last-child { border-radius: 0 4px 4px 0; }
+  .track:hover .seg { opacity: .55; }
+  .track .seg:hover { opacity: 1; }
+  .seg.pass { background: var(--good); }
+  .seg.fail { background: var(--critical); }
+  .seg.review { background: var(--warning); }
+  .tip {
+    position: fixed; pointer-events: none; z-index: 10; display: none;
+    background: var(--surface); color: var(--text-primary); border: 1px solid var(--border);
+    box-shadow: 0 4px 16px rgba(0,0,0,.14); border-radius: 8px; padding: 8px 10px; font-size: 12px; min-width: 150px;
+  }
+  .tip .t { font-weight: 600; margin-bottom: 2px; }
+  .tip .r { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+  .tip .r b { color: var(--text-primary); margin-left: auto; font-variant-numeric: tabular-nums; }
+
+  .grid-2 { display: grid; grid-template-columns: 1.15fr 1fr; gap: 20px; }
+
+  /* tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+  th { color: var(--text-secondary); font-weight: 600; font-size: 12px; background: var(--surface-2); }
+  td.mono, .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12.5px; }
+  td.num { font-variant-numeric: tabular-nums; }
+  .table-scroll { overflow-x: auto; }
+
+  /* review items */
+  .review-list { display: grid; gap: 12px; }
+  .review-card { border: 1px solid var(--border); border-left: 4px solid var(--warning); border-radius: 10px; padding: 14px 16px; background: var(--surface); }
+  .review-card .hd { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 8px; }
+  .review-card .id { font-weight: 700; }
+  .review-card .field { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-weight: 600; }
+  .review-card dl { display: grid; grid-template-columns: 92px 1fr; gap: 4px 12px; margin: 0 0 10px; font-size: 13px; }
+  .review-card dt { color: var(--text-muted); }
+  .review-card dd { margin: 0; }
+  details.draft { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; }
+  details.draft summary { cursor: pointer; font-weight: 600; font-size: 13px; }
+  details.draft pre { white-space: pre-wrap; font-family: inherit; font-size: 13px; margin: 10px 0 0; color: var(--text-secondary); }
+
+  /* fail analysis */
+  .fail-list { display: grid; gap: 12px; }
+  .fail-card { border: 1px solid var(--border); border-left: 4px solid var(--critical); border-radius: 10px; padding: 14px 16px; background: var(--surface); }
+  .fail-card .hd { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 10px; }
+  .fail-card .cmp { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+  .fail-card .cmp div { background: var(--surface-2); border-radius: 8px; padding: 8px 10px; }
+  .fail-card .cmp .k { font-size: 11px; color: var(--text-muted); display: block; }
+  .fail-card .cmp .v { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; font-weight: 600; }
+  .fail-card p { margin: 4px 0; font-size: 13px; }
+  .fail-card p b { color: var(--text-secondary); font-weight: 600; margin-right: 6px; }
+
+  .opinion { border-left: 4px solid var(--accent); }
+  .opinion ul { margin: 0; padding-left: 18px; }
+  .opinion li { margin: 4px 0; }
+
+  /* excel view */
+  .xl { background: var(--surface); border: 1px solid var(--xl-grid); border-radius: 10px; overflow: hidden; }
+  .xl-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--xl-grid); }
+  .xl-file { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; }
+  .xl-file .xicon { width: 20px; height: 20px; border-radius: 4px; background: #1d7a45; color: #fff; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filters button { appearance: none; font: inherit; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); cursor: pointer; }
+  .filters button[aria-pressed="true"] { background: var(--text-primary); color: var(--surface); border-color: var(--text-primary); }
+  .xl table { font-size: 12.5px; }
+  .xl th, .xl td { border: 1px solid var(--xl-grid); padding: 5px 8px; }
+  .xl th { background: var(--xl-header); color: var(--text-primary); position: sticky; top: 0; }
+  .xl th.rn, .xl td.rn { background: var(--xl-header); color: var(--text-muted); text-align: center; width: 36px; font-weight: 500; }
+  .xl tr.r-fail td:not(.rn) { background: var(--critical-wash); }
+  .xl tr.r-review td:not(.rn) { background: var(--warning-wash); }
+  .xl-body { max-height: 560px; overflow: auto; }
+  .xl-sheets { display: flex; gap: 2px; border-top: 1px solid var(--xl-grid); background: var(--surface-2); padding: 0 8px; overflow-x: auto; }
+  .xl-sheets button { appearance: none; border: 0; font: inherit; font-size: 12.5px; padding: 7px 14px; background: none; color: var(--text-secondary); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+  .xl-sheets button[aria-selected="true"] { background: var(--surface); color: var(--text-primary); font-weight: 600; border-bottom-color: #1d7a45; }
+
+  @media (max-width: 860px) {
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .bar-row { grid-template-columns: 1fr; gap: 4px; }
+    .bar-row .nums { text-align: left; }
+    .fail-card .cmp { grid-template-columns: 1fr; }
+    .review-card dl { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>Identify 필드 검증 결과</h1>
+      <p class="sub">VSSD-Z200 7.68TB · NVMe Identify Controller / Namespace</p>
+    </div>
+    <div class="meta">
+      <span>FW <b class="mono">2ZB1C0A3</b></span>
+      <span>검증일 <b>2026-10-16</b></span>
+      <span>기준 <b>NVMe Base 2.0 · Spec Gap v1.2 · 제품 사양 v9</b></span>
+      <span>회차 <b>W42</b></span>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" aria-controls="p-dash" id="t-dash">대시보드</button>
+    <button role="tab" aria-selected="false" aria-controls="p-xl" id="t-xl">엑셀 상세 결과</button>
+  </nav>
+
+  <!-- ========== DASHBOARD ========== -->
+  <div class="panel" id="p-dash" role="tabpanel" aria-labelledby="t-dash">
+
+    <section>
+      <h2><span class="section-num">1</span>Pass / Fail 현황</h2>
+      <div class="kpis" id="kpis"></div>
+      <div class="card">
+        <div class="legend">
+          <span><i class="swatch" style="background:var(--good)"></i>Pass</span>
+          <span><i class="swatch" style="background:var(--critical)"></i>Fail</span>
+          <span><i class="swatch" style="background:var(--warning)"></i>검토 필요</span>
+        </div>
+        <div class="bars" id="bars"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2><span class="section-num">2</span>검토 필요사항<span class="count" id="review-count"></span></h2>
+      </div>
+      <div class="review-list" id="reviews"></div>
+    </section>
+
+    <section>
+      <h2><span class="section-num">3</span>결과 및 분석</h2>
+      <div class="grid-2">
+        <div>
+          <h2 style="font-size:14px;color:var(--text-secondary)">Fail 항목별 원인 분석 · 영향도 · 조치 제안</h2>
+          <div class="fail-list" id="fails"></div>
+        </div>
+        <div>
+          <h2 style="font-size:14px;color:var(--text-secondary)">전체 종합 의견</h2>
+          <div class="card opinion">
+            <ul>
+              <li>검증 대상 48개 필드 중 <b>41개(85.4%) Pass</b>, <b>4개 Fail</b>, <b>3개 검토 필요</b>입니다.</li>
+              <li>Fail 4건 중 <b>OAES</b>(NS Attribute Notice 미설정)는 호스트의 Namespace 변경 감지에 영향을 주므로 <b>FW 수정이 최우선</b>입니다.</li>
+              <li><b>FR</b> 불일치는 검증에 사용한 FW 이미지가 대상 버전과 다를 가능성이 있어, 버전 확인 후 <b>전체 재검증</b>이 필요합니다.</li>
+              <li><b>ELPE</b>, <b>NSFEAT</b>는 공통 FW 기본값이 제품 정책에 반영되지 않은 사례로, 같은 유형의 누락이 다른 필드에도 있는지 점검을 권장합니다.</li>
+              <li>검토 필요 3건은 기준 문서 간 불일치(RTD3E), 기대값 미정(HCTMA), 근거 문서 부재(NOIOB)이며, 문의 회신 후 Spec Gap 문서에 반영해야 다음 회차부터 자동 판정이 가능합니다.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ========== EXCEL VIEW ========== -->
+  <div class="panel" id="p-xl" role="tabpanel" aria-labelledby="t-xl" hidden>
+    <div class="xl">
+      <div class="xl-bar">
+        <span class="xl-file"><span class="xicon">X</span>IDverify_VSSD-Z200_2ZB1C0A3_W42.xlsx</span>
+        <div class="filters" id="xl-filters"></div>
+      </div>
+      <div class="xl-body" id="xl-body"></div>
+      <div class="xl-sheets" role="tablist" id="xl-sheets"></div>
+    </div>
+  </div>
+
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+const S = { pass: 'Pass', fail: 'Fail', review: '검토 필요' };
+const ICON = { pass: '✓', fail: '✕', review: '!' };
+
+// [구조, 필드, Offset, 기대값, 실제값, 근거 문서, 판정, 비고]
+const ROWS = [
+  ['Controller','VID','1:0','0xF00D','0xf00d','제품 사양','pass',''],
+  ['Controller','SSVID','3:2','0xF00D','0xf00d','제품 사양','pass',''],
+  ['Controller','SN','23:4','ZB + 연도 2자리 + 일련번호 8자리','ZB2600087421','제품 사양','pass',''],
+  ['Controller','MN','63:24','VSSD-Z200 7.68TB','VSSD-Z200 7.68TB','제품 사양','pass',''],
+  ['Controller','FR','71:64','2ZB1C0A3','2ZB1C0A2','제품 사양','fail','검증 대상 FW와 버전 문자열 불일치'],
+  ['Controller','RAB','72','3','3','제품 사양','pass',''],
+  ['Controller','IEEE','75:73','acde48','acde48','제품 사양','pass',''],
+  ['Controller','CMIC','76','0x3','0x3','제품 사양','pass','Dual Port'],
+  ['Controller','MDTS','77','0x6 (256KB)','6','Spec Gap','pass',''],
+  ['Controller','CNTLID','79:78','포트별 고유값','0x1','NVMe Spec','pass',''],
+  ['Controller','VER','83:80','0x20000','0x20000','제품 사양','pass',''],
+  ['Controller','RTD3R','87:84','0x7A120 (500ms)','0x7a120','Spec Gap','pass',''],
+  ['Controller','RTD3E','91:88','문서 간 상이 (8s / 10s)','0x989680 (10s)','제품 사양 / Spec Gap','review','R-01'],
+  ['Controller','OAES','95:92','bit8 = 1 (0x100)','0x0','제품 사양','fail','NS Attribute Notice 미설정'],
+  ['Controller','CTRATT','99:96','0x80','0x80','제품 사양','pass',''],
+  ['Controller','CNTRLTYPE','111','1 (I/O)','1','제품 사양','pass',''],
+  ['Controller','OACS','257:256','0x5e','0x5e','제품 사양','pass',''],
+  ['Controller','ACL','258','3','3','제품 사양','pass',''],
+  ['Controller','AERL','259','3','3','제품 사양','pass',''],
+  ['Controller','FRMW','260','0x17','0x17','제품 사양','pass',''],
+  ['Controller','LPA','261','0x1e','0x1e','제품 사양','pass',''],
+  ['Controller','ELPE','262','63 (64 entries)','255','Spec Gap','fail','공통 FW 기본값 유지'],
+  ['Controller','NPSS','263','3 (PS0~PS3)','3','제품 사양','pass',''],
+  ['Controller','APSTA','265','0','0','Spec Gap','pass',''],
+  ['Controller','WCTEMP','267:266','345 (72℃)','345','제품 사양','pass',''],
+  ['Controller','CCTEMP','269:268','355 (82℃)','355','제품 사양','pass',''],
+  ['Controller','TNVMCAP','295:280','7,681,501,126,656','7681501126656','제품 사양','pass',''],
+  ['Controller','UNVMCAP','311:296','0','0','제품 사양','pass',''],
+  ['Controller','KAS','321:320','0','0','Spec Gap','pass',''],
+  ['Controller','HCTMA','323:322','TBD','0x1 (MNTMT 273 / MXTMT 358)','Spec Gap','review','R-02'],
+  ['Controller','SANICAP','331:328','0x3','0x3','Spec Gap','pass',''],
+  ['Controller','SQES','512','0x66','0x66','NVMe Spec','pass',''],
+  ['Controller','CQES','513','0x44','0x44','NVMe Spec','pass',''],
+  ['Controller','NN','519:516','64','64','제품 사양','pass',''],
+  ['Controller','ONCS','521:520','0x7c','0x7c','제품 사양 / Spec Gap','pass',''],
+  ['Controller','VWC','525','0x0','0','Spec Gap','pass','PLP 탑재'],
+  ['Namespace','NSZE','7:0','0x6FC7D256','0x6fc7d256','제품 사양','pass','4KB 기준'],
+  ['Namespace','NCAP','15:8','0x6FC7D256','0x6fc7d256','제품 사양','pass',''],
+  ['Namespace','NUSE','23:16','0x6FC7D256','0x6fc7d256','제품 사양','pass',''],
+  ['Namespace','NSFEAT','24','bit4 = 1 (0x10)','0x0','NVMe Spec','fail','NPWG 값 있으나 OPTPERF 미설정'],
+  ['Namespace','NLBAF','25','1','1','제품 사양','pass',''],
+  ['Namespace','FLBAS','26','0x1 (4KB)','0x1','제품 사양','pass',''],
+  ['Namespace','DPS','29','0x0','0','Spec Gap','pass',''],
+  ['Namespace','NMIC','30','0x1','0x1','Spec Gap','pass',''],
+  ['Namespace','DLFEAT','33','0x9','9','제품 사양','pass',''],
+  ['Namespace','NOIOB','47:46','근거 문서 없음','32','없음','review','R-03'],
+  ['Namespace','NPWG','65:64','7 (32KB)','7','제품 사양','pass',''],
+  ['Namespace','LBAF1','135:132','lbads 12, ms 0','lbads:12 ms:0','제품 사양','pass',''],
+];
+
+const REVIEWS = [
+  { id: 'R-01', field: 'RTD3E', struct: 'Identify Controller', actual: '0x989680 (10s)',
+    reason: '기준 문서 간 값 상이 — 제품 사양 v9는 8s, Spec Gap v1.2는 10s',
+    to: '제품 기획 담당',
+    draft: `제목: [VSSD-Z200] Identify RTD3E 기대값 확인 요청\n\n안녕하세요, Solution PE Server SSD입니다.\nFW 2ZB1C0A3 Identify 필드 검증 중 RTD3E(Byte 91:88) 기대값이 문서 간 상이하여 확인 요청드립니다.\n\n- 제품 사양 v9: 8,000,000us (8s)\n- Spec Gap v1.2: 10,000,000us (10s)\n- 실제 측정값: 0x989680 (10s)\n\n어느 문서 기준이 최신인지 확인 부탁드리며, 8s가 맞다면 FW 수정 요청을 함께 진행하겠습니다.\n회신 요청일: 10/21` },
+  { id: 'R-02', field: 'HCTMA', struct: 'Identify Controller', actual: '0x1 (MNTMT 273 / MXTMT 358)',
+    reason: 'Spec Gap에 기대값 TBD — 실제로는 HCTM 지원으로 보고됨',
+    to: '열 설계 담당',
+    draft: `제목: [VSSD-Z200] HCTMA 지원 여부 및 MNTMT/MXTMT 값 확정 요청\n\n안녕하세요, Solution PE Server SSD입니다.\nSpec Gap v1.2에서 HCTMA(Byte 323:322)가 TBD로 남아 있으나, FW 2ZB1C0A3에서는 HCTM 지원(0x1)으로 보고되고 있습니다.\n\n- MNTMT: 273K (0℃)\n- MXTMT: 358K (85℃)\n\n1) HCTM 지원이 제품 정책에 맞는지\n2) MNTMT / MXTMT 값이 열 설계 기준과 일치하는지\n확인 부탁드립니다. 확정 시 Spec Gap 문서에 반영하겠습니다.` },
+  { id: 'R-03', field: 'NOIOB', struct: 'Identify Namespace', actual: '32 (128KB @4KB)',
+    reason: 'Spec Gap·제품 사양 어디에도 기대값 근거 없음',
+    to: 'FW 개발 담당',
+    draft: `제목: [VSSD-Z200] Identify Namespace NOIOB 설정 근거 문의\n\n안녕하세요, Solution PE Server SSD입니다.\nFW 2ZB1C0A3의 NOIOB(Byte 47:46)가 32(4KB 기준 128KB)로 보고되나, 제품 사양과 Spec Gap 문서에 관련 정의가 없어 검증 기준을 정할 수 없습니다.\n\n- 128KB 경계값의 설계 근거\n- 고객 요구사항 반영 여부\n를 공유해 주시면 Spec Gap 문서에 기대값으로 등록하겠습니다.` },
+];
+
+const FAILS = [
+  { field: 'OAES', struct: 'Identify Controller', exp: 'bit8 = 1 (0x100)', act: '0x0', src: '제품 사양 v9 §3.4',
+    cause: 'Namespace Attribute Notices 지원이 사양에 명시되어 있으나 FW 빌드 옵션에서 해당 AEN 비트 설정이 빠진 것으로 추정',
+    impact: ['high', '높음', 'NS 생성·삭제 시 호스트가 변경을 감지하지 못해 고객 NS 관리 시나리오 실패 가능'],
+    action: 'FW 수정 요청 (OAES bit8 설정) 후 재검증' },
+  { field: 'FR', struct: 'Identify Controller', exp: '2ZB1C0A3', act: '2ZB1C0A2', src: '제품 사양 v9 §2 / 배포 노트',
+    cause: '검증 장비에 이전 FW 이미지가 적용되었거나, 신규 빌드에서 버전 문자열이 갱신되지 않음',
+    impact: ['mid', '중간', '이번 회차 검증 결과 전체의 유효성이 불확실함'],
+    action: '장비 FW 버전 재확인 → 대상 FW로 재다운로드 후 전체 재검증' },
+  { field: 'NSFEAT', struct: 'Identify Namespace', exp: 'bit4 = 1 (0x10)', act: '0x0', src: 'NVMe Base 2.0 Identify NS NSFEAT',
+    cause: 'NPWG 등 성능 최적화 필드는 채워졌으나 유효 비트(OPTPERF)가 설정되지 않음',
+    impact: ['mid', '중간', '호스트가 NPWG/NPWA 값을 무시하여 최적 IO 정렬이 적용되지 않을 수 있음'],
+    action: 'FW 수정 요청 (NSFEAT bit4 설정)' },
+  { field: 'ELPE', struct: 'Identify Controller', exp: '63 (64 entries)', act: '255', src: 'Spec Gap v1.2 #7',
+    cause: '공통 FW 기본값(256 entries)이 제품 정책(64 entries)으로 변경되지 않음',
+    impact: ['low', '낮음', '실제 보관 개수와 보고값 불일치 — 호스트 Error Log 조회 시 빈 항목 반환'],
+    action: 'FW 수정 또는 정책 변경 시 Spec Gap 문서 갱신' },
+];
+
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const badge = (k) => `<span class="badge ${k}"><span class="ico ${k}" aria-hidden="true">${ICON[k]}</span>${S[k]}</span>`;
+
+function tally(rows) {
+  const c = { pass: 0, fail: 0, review: 0 };
+  rows.forEach(r => c[r[6]]++);
+  return c;
+}
+
+/* KPI tiles */
+const all = tally(ROWS);
+const total = ROWS.length;
+const pct = (n, d = total) => (n / d * 100).toFixed(1);
+$('#kpis').innerHTML = `
+  <div class="kpi"><div class="label">검증 필드</div><div class="value">${total}<small>개</small></div><div class="foot">Controller 36 · Namespace 12</div></div>
+  <div class="kpi"><div class="label"><span class="ico pass">✓</span>Pass</div><div class="value">${all.pass}<small>${pct(all.pass)}%</small></div><div class="foot">기준 문서와 일치</div></div>
+  <div class="kpi"><div class="label"><span class="ico fail">✕</span>Fail</div><div class="value">${all.fail}<small>${pct(all.fail)}%</small></div><div class="foot">FW 수정 3 · 재검증 1</div></div>
+  <div class="kpi"><div class="label"><span class="ico review">!</span>검토 필요</div><div class="value">${all.review}<small>${pct(all.review)}%</small></div><div class="foot">문의 발송 대상</div></div>`;
+
+/* Stacked bars */
+const groups = [
+  ['전체', ROWS],
+  ['Identify Controller', ROWS.filter(r => r[0] === 'Controller')],
+  ['Identify Namespace', ROWS.filter(r => r[0] === 'Namespace')],
+];
+$('#bars').innerHTML = groups.map(([name, rows]) => {
+  const c = tally(rows), n = rows.length;
+  const segs = ['pass', 'fail', 'review'].filter(k => c[k]).map(k =>
+    `<div class="seg ${k}" style="width:${c[k] / n * 100}%" data-g="${name}" data-k="${k}" data-n="${c[k]}" data-t="${n}"></div>`).join('');
+  return `<div class="bar-row"><div class="name">${name}</div><div class="track">${segs}</div>
+    <div class="nums">Pass ${c.pass} · Fail ${c.fail} · 검토 ${c.review} / ${n}</div></div>`;
+}).join('');
+
+const tip = $('#tip');
+document.querySelectorAll('.seg').forEach(el => {
+  el.addEventListener('mousemove', e => {
+    const k = el.dataset.k;
+    const names = ROWS.filter(r => r[6] === k && (el.dataset.g === '전체' || ('Identify ' + r[0]) === el.dataset.g)).map(r => r[1]);
+    tip.innerHTML = `<div class="t">${el.dataset.g}</div>
+      <div class="r"><span class="ico ${k}">${ICON[k]}</span>${S[k]}<b>${el.dataset.n}건 · ${pct(el.dataset.n, el.dataset.t)}%</b></div>
+      ${k !== 'pass' ? `<div class="r" style="margin-top:4px">${names.join(', ')}</div>` : ''}`;
+    tip.style.display = 'block';
+    const x = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
+    tip.style.left = x + 'px';
+    tip.style.top = (e.clientY + 14) + 'px';
+  });
+  el.addEventListener('mouseleave', () => tip.style.display = 'none');
+});
+
+/* Review items */
+$('#review-count').textContent = `${REVIEWS.length}건`;
+$('#reviews').innerHTML = REVIEWS.map(r => `
+  <div class="review-card">
+    <div class="hd">${badge('review')}<span class="id">${r.id}</span><span class="field">${r.field}</span><span style="color:var(--text-muted);font-size:12px">${r.struct}</span></div>
+    <dl>
+      <dt>실제값</dt><dd class="mono">${esc(r.actual)}</dd>
+      <dt>검토 사유</dt><dd>${esc(r.reason)}</dd>
+      <dt>문의 대상</dt><dd>${esc(r.to)}</dd>
+    </dl>
+    <details class="draft"><summary>문의 초안 보기</summary><pre>${esc(r.draft)}</pre></details>
+  </div>`).join('');
+
+/* Fail analysis */
+$('#fails').innerHTML = FAILS.map(f => `
+  <div class="fail-card">
+    <div class="hd">${badge('fail')}<span class="field mono" style="font-weight:700">${f.field}</span><span style="color:var(--text-muted);font-size:12px">${f.struct}</span>
+      <span style="margin-left:auto">영향도 <span class="lvl ${f.impact[0]}">${f.impact[1]}</span></span></div>
+    <div class="cmp">
+      <div><span class="k">기대값</span><span class="v">${esc(f.exp)}</span></div>
+      <div><span class="k">실제값</span><span class="v">${esc(f.act)}</span></div>
+      <div><span class="k">근거 문서</span><span class="v" style="font-family:inherit;font-weight:500">${esc(f.src)}</span></div>
+    </div>
+    <p><b>예상 원인</b>${esc(f.cause)}</p>
+    <p><b>영향</b>${esc(f.impact[2])}</p>
+    <p><b>조치 제안</b>${esc(f.action)}</p>
+  </div>`).join('');
+
+/* Excel view */
+const SHEETS = {
+  '요약': () => {
+    const rows = [
+      ['제품', 'VSSD-Z200 7.68TB'], ['FW', '2ZB1C0A3'], ['검증일', '2026-10-16'], ['회차', 'W42'],
+      ['기준 문서', 'NVMe Base 2.0 / Spec Gap v1.2 / 제품 사양 v9'],
+      ['검증 필드 수', total], ['Pass', `${all.pass} (${pct(all.pass)}%)`], ['Fail', `${all.fail} (${pct(all.fail)}%)`], ['검토 필요', `${all.review} (${pct(all.review)}%)`],
+      ['종합 의견', 'OAES FW 수정 최우선, FR 불일치로 대상 FW 확인 후 전체 재검증 필요. 검토 필요 3건은 문의 회신 후 Spec Gap 반영.'],
+    ];
+    return xlTable(['항목', '내용'], rows.map(r => ({ cells: r })));
+  },
+  '상세 결과': (filter) => {
+    const rows = ROWS.filter(r => filter === 'all' || r[6] === filter);
+    return xlTable(['No', '구분', '필드', 'Byte Offset', '기대값', '실제값', '근거 문서', '판정', '비고'],
+      rows.map(r => ({ cls: 'r-' + r[6], cells: [ROWS.indexOf(r) + 1, 'Identify ' + r[0], r[1], r[2], r[3], r[4], r[5], { html: badge(r[6]) }, r[7]] })));
+  },
+  '검토 필요사항': () => xlTable(['ID', '필드', '구분', '실제값', '검토 사유', '문의 대상', '문의 초안'],
+    REVIEWS.map(r => ({ cls: 'r-review', cells: [r.id, r.field, r.struct, r.actual, r.reason, r.to, { html: `<div style="white-space:pre-wrap;min-width:320px">${esc(r.draft)}</div>` }] }))),
+  'Fail 분석': () => xlTable(['필드', '구분', '기대값', '실제값', '근거 문서', '예상 원인', '영향도', '영향', '조치 제안'],
+    FAILS.map(f => ({ cls: 'r-fail', cells: [f.field, f.struct, f.exp, f.act, f.src, f.cause, { html: `<span class="lvl ${f.impact[0]}">${f.impact[1]}</span>` }, f.impact[2], f.action] }))),
+};
+
+function xlTable(head, rows) {
+  const cols = head.map((_, i) => String.fromCharCode(65 + i));
+  return `<table><thead>
+    <tr><th class="rn"></th>${cols.map(c => `<th style="text-align:center;font-weight:500;color:var(--text-muted)">${c}</th>`).join('')}</tr>
+    <tr><th class="rn">1</th>${head.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>
+    ${rows.map((r, i) => `<tr class="${r.cls || ''}"><td class="rn">${i + 2}</td>${r.cells.map(c =>
+      `<td${typeof c === 'number' ? ' class="num"' : ''}>${c && c.html ? c.html : esc(c)}</td>`).join('')}</tr>`).join('')}
+  </tbody></table>`;
+}
+
+let sheet = '상세 결과', filter = 'all';
+function renderXl() {
+  $('#xl-sheets').innerHTML = Object.keys(SHEETS).map(n => `<button role="tab" aria-selected="${n === sheet}">${n}</button>`).join('');
+  $('#xl-filters').innerHTML = sheet === '상세 결과'
+    ? [['all', `전체 ${total}`], ['pass', `Pass ${all.pass}`], ['fail', `Fail ${all.fail}`], ['review', `검토 필요 ${all.review}`]]
+        .map(([k, l]) => `<button data-f="${k}" aria-pressed="${k === filter}">${l}</button>`).join('')
+    : '';
+  $('#xl-body').innerHTML = SHEETS[sheet](filter);
+}
+$('#xl-sheets').addEventListener('click', e => { if (e.target.tagName === 'BUTTON') { sheet = e.target.textContent; renderXl(); } });
+$('#xl-filters').addEventListener('click', e => { if (e.target.dataset.f) { filter = e.target.dataset.f; renderXl(); } });
+renderXl();
+
+/* Tabs */
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+  document.querySelectorAll('.panel').forEach(p => p.hidden = p.id !== b.getAttribute('aria-controls'));
+}));
+</script>
+</body>
+</html>

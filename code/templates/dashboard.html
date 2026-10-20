@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ID 필드 검증 결과</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --surface-2: #f3f2ee;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.10);
+    --accent: #2a78d6;
+    --good: #0ca30c;
+    --warning: #fab219;
+    --critical: #d03b3b;
+    --good-wash: rgba(12, 163, 12, 0.10);
+    --warning-wash: rgba(250, 178, 25, 0.16);
+    --critical-wash: rgba(208, 59, 59, 0.10);
+    --xl-header: #e9eef5;
+    --xl-grid: #d6d9de;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --surface-2: #232321;
+      --text-primary: #f0efec;
+      --text-secondary: #c3c2b7;
+      --text-muted: #898781;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --border: rgba(255, 255, 255, 0.10);
+      --accent: #3987e5;
+      --good-wash: rgba(12, 163, 12, 0.18);
+      --warning-wash: rgba(250, 178, 25, 0.16);
+      --critical-wash: rgba(208, 59, 59, 0.20);
+      --xl-header: #262a30;
+      --xl-grid: #34373c;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-2: #232321;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --accent: #3987e5;
+    --good-wash: rgba(12, 163, 12, 0.18);
+    --warning-wash: rgba(250, 178, 25, 0.16);
+    --critical-wash: rgba(208, 59, 59, 0.20);
+    --xl-header: #262a30;
+    --xl-grid: #34373c;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 16px 56px; }
+
+  header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+  header.top h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  header.top .sub { color: var(--text-secondary); margin: 0; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--text-secondary); font-size: 13px; }
+  .meta b { color: var(--text-primary); font-weight: 600; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--grid); margin-bottom: 20px; }
+  .tabs button {
+    appearance: none; border: 0; background: none; cursor: pointer;
+    padding: 10px 14px; font: inherit; font-weight: 600; color: var(--text-secondary);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .tabs button[aria-selected="true"] { color: var(--text-primary); border-bottom-color: var(--accent); }
+  .tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .panel[hidden] { display: none; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  section { margin-bottom: 20px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  h2 .count { color: var(--text-muted); font-weight: 500; margin-left: 4px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .section-num { color: var(--text-muted); font-weight: 600; margin-right: 6px; }
+
+  /* KPI tiles */
+  .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .kpi .label { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 13px; }
+  .kpi .value { font-size: 30px; font-weight: 650; line-height: 1.2; margin-top: 4px; }
+  .kpi .value small { font-size: 14px; font-weight: 500; color: var(--text-muted); margin-left: 4px; }
+  .kpi .foot { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+
+  /* status marks */
+  .ico { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; font-size: 11px; font-weight: 700; color: #fff; flex: none; }
+  .ico.pass { background: var(--good); }
+  .ico.fail { background: var(--critical); }
+  .ico.review { background: var(--warning); color: #3a2a00; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 4px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--text-primary); }
+  .badge.pass { background: var(--good-wash); }
+  .badge.fail { background: var(--critical-wash); }
+  .badge.review { background: var(--warning-wash); }
+  .lvl { display: inline-block; padding: 1px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); }
+  .lvl.high { background: var(--critical-wash); }
+  .lvl.mid { background: var(--warning-wash); }
+  .lvl.low { background: var(--surface-2); }
+
+  /* stacked bars */
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .bars { display: grid; gap: 14px; }
+  .bar-row { display: grid; grid-template-columns: 150px 1fr 190px; align-items: center; gap: 12px; }
+  .bar-row .name { font-weight: 600; font-size: 13px; }
+  .bar-row .nums { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; text-align: right; }
+  .track { display: flex; gap: 2px; height: 22px; }
+  .seg { height: 100%; cursor: default; transition: opacity .12s; }
+  .seg:first-child { border-radius: 4px 0 0 4px; }
+  .seg:last-child { border-radius: 0 4px 4px 0; }
+  .track:hover .seg { opacity: .55; }
+  .track .seg:hover { opacity: 1; }
+  .seg.pass { background: var(--good); }
+  .seg.fail { background: var(--critical); }
+  .seg.review { background: var(--warning); }
+  .tip {
+    position: fixed; pointer-events: none; z-index: 10; display: none;
+    background: var(--surface); color: var(--text-primary); border: 1px solid var(--border);
+    box-shadow: 0 4px 16px rgba(0,0,0,.14); border-radius: 8px; padding: 8px 10px; font-size: 12px; min-width: 150px;
+  }
+  .tip .t { font-weight: 600; margin-bottom: 2px; }
+  .tip .r { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+  .tip .r b { color: var(--text-primary); margin-left: auto; font-variant-numeric: tabular-nums; }
+
+  .grid-2 { display: grid; grid-template-columns: 1.15fr 1fr; gap: 20px; }
+
+  /* tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+  th { color: var(--text-secondary); font-weight: 600; font-size: 12px; background: var(--surface-2); }
+  td.mono, .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12.5px; }
+  td.num { font-variant-numeric: tabular-nums; }
+  .table-scroll { overflow-x: auto; }
+
+  /* review items */
+  .review-list { display: grid; gap: 12px; }
+  .review-card { border: 1px solid var(--border); border-left: 4px solid var(--warning); border-radius: 10px; padding: 14px 16px; background: var(--surface); }
+  .review-card .hd { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 8px; }
+  .review-card .id { font-weight: 700; }
+  .review-card .field { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-weight: 600; }
+  .review-card dl { display: grid; grid-template-columns: 92px 1fr; gap: 4px 12px; margin: 0 0 10px; font-size: 13px; }
+  .review-card dt { color: var(--text-muted); }
+  .review-card dd { margin: 0; }
+  details.draft { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; }
+  details.draft summary { cursor: pointer; font-weight: 600; font-size: 13px; }
+  details.draft pre { white-space: pre-wrap; font-family: inherit; font-size: 13px; margin: 10px 0 0; color: var(--text-secondary); }
+
+  /* fail analysis */
+  .fail-list { display: grid; gap: 12px; }
+  .fail-card { border: 1px solid var(--border); border-left: 4px solid var(--critical); border-radius: 10px; padding: 14px 16px; background: var(--surface); }
+  .fail-card .hd { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 10px; }
+  .fail-card .cmp { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+  .fail-card .cmp div { background: var(--surface-2); border-radius: 8px; padding: 8px 10px; }
+  .fail-card .cmp .k { font-size: 11px; color: var(--text-muted); display: block; }
+  .fail-card .cmp .v { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; font-weight: 600; }
+  .fail-card p { margin: 4px 0; font-size: 13px; }
+  .fail-card p b { color: var(--text-secondary); font-weight: 600; margin-right: 6px; }
+
+  .opinion { border-left: 4px solid var(--accent); }
+  .opinion ul { margin: 0; padding-left: 18px; }
+  .opinion li { margin: 4px 0; }
+
+  /* excel view */
+  .xl { background: var(--surface); border: 1px solid var(--xl-grid); border-radius: 10px; overflow: hidden; }
+  .xl-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--xl-grid); }
+  .xl-file { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; }
+  .xl-file .xicon { width: 20px; height: 20px; border-radius: 4px; background: #1d7a45; color: #fff; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filters button { appearance: none; font: inherit; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); cursor: pointer; }
+  .filters button[aria-pressed="true"] { background: var(--text-primary); color: var(--surface); border-color: var(--text-primary); }
+  .xl table { font-size: 12.5px; }
+  .xl th, .xl td { border: 1px solid var(--xl-grid); padding: 5px 8px; }
+  .xl th { background: var(--xl-header); color: var(--text-primary); position: sticky; top: 0; }
+  .xl th.rn, .xl td.rn { background: var(--xl-header); color: var(--text-muted); text-align: center; width: 36px; font-weight: 500; }
+  .xl tr.r-fail td:not(.rn) { background: var(--critical-wash); }
+  .xl tr.r-review td:not(.rn) { background: var(--warning-wash); }
+  .xl-body { max-height: 560px; overflow: auto; }
+  .xl-sheets { display: flex; gap: 2px; border-top: 1px solid var(--xl-grid); background: var(--surface-2); padding: 0 8px; overflow-x: auto; }
+  .xl-sheets button { appearance: none; border: 0; font: inherit; font-size: 12.5px; padding: 7px 14px; background: none; color: var(--text-secondary); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+  .xl-sheets button[aria-selected="true"] { background: var(--surface); color: var(--text-primary); font-weight: 600; border-bottom-color: #1d7a45; }
+
+  @media (max-width: 860px) {
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .bar-row { grid-template-columns: 1fr; gap: 4px; }
+    .bar-row .nums { text-align: left; }
+    .fail-card .cmp { grid-template-columns: 1fr; }
+    .review-card dl { grid-template-columns: 1fr; }
+  }
+</style>
+<style>
+  .reason-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .rtag { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--border); }
+  .empty { color: var(--text-muted); font-size: 13px; padding: 14px 16px; background: var(--surface); border: 1px dashed var(--border); border-radius: 10px; }
+  .xl td { max-width: 420px; }
+  .note-line { color: var(--text-muted); font-size: 12px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>Identify 필드 검증 결과</h1>
+      <p class="sub" id="sub"></p>
+    </div>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" aria-controls="p-dash" id="t-dash">대시보드</button>
+    <button role="tab" aria-selected="false" aria-controls="p-xl" id="t-xl">엑셀 상세 결과</button>
+  </nav>
+
+  <div class="panel" id="p-dash" role="tabpanel" aria-labelledby="t-dash">
+    <section>
+      <h2><span class="section-num">1</span>Pass / Fail 현황</h2>
+      <div class="kpis" id="kpis"></div>
+      <div class="card">
+        <div class="legend">
+          <span><i class="swatch" style="background:var(--good)"></i>Pass</span>
+          <span><i class="swatch" style="background:var(--critical)"></i>Fail</span>
+          <span><i class="swatch" style="background:var(--warning)"></i>검토 필요</span>
+        </div>
+        <div class="bars" id="bars"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2><span class="section-num">2</span>검토 필요사항<span class="count" id="review-count"></span></h2>
+      </div>
+      <div class="review-list" id="reviews"></div>
+    </section>
+
+    <section>
+      <h2><span class="section-num">3</span>결과 및 분석</h2>
+      <div class="grid-2">
+        <div>
+          <h2 style="font-size:14px;color:var(--text-secondary)">Fail 항목별 원인 분석 · 영향도 · 조치 제안</h2>
+          <div class="fail-list" id="fails"></div>
+        </div>
+        <div>
+          <h2 style="font-size:14px;color:var(--text-secondary)">전체 종합 의견</h2>
+          <div class="card opinion"><ul id="opinion"></ul></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="panel" id="p-xl" role="tabpanel" aria-labelledby="t-xl" hidden>
+    <div class="xl">
+      <div class="xl-bar">
+        <span class="xl-file"><span class="xicon">X</span><span id="xl-name"></span></span>
+        <div class="filters" id="xl-filters"></div>
+      </div>
+      <div class="xl-body" id="xl-body"></div>
+      <div class="xl-sheets" role="tablist" id="xl-sheets"></div>
+    </div>
+  </div>
+
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+const DATA = __DATA__;
+
+const S = { pass: 'Pass', fail: 'Fail', review: '검토 필요' };
+const ICON = { pass: '✓', fail: '✕', review: '!' };
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const badge = (k) => `<span class="badge ${k}"><span class="ico ${k}" aria-hidden="true">${ICON[k]}</span>${S[k]}</span>`;
+const { meta, summary, rows: ROWS, reviews: REVIEWS, fails: FAILS, opinion: OPINION } = DATA;
+const total = summary.total;
+const pct = (n, d = total) => (d ? (n / d * 100).toFixed(1) : '0.0');
+
+/* Header */
+$('#sub').textContent = `${meta.product} · NVMe Identify Controller / Namespace`;
+$('#meta').innerHTML = [
+  ['FW', `<b class="mono">${esc(meta.fw)}</b>`],
+  ['SN', `<b class="mono">${esc(meta.sn)}</b>`],
+  ['검증일', `<b>${esc(meta.date)}</b>`],
+  ['기준', `<b>${esc(meta.basis)}</b>`],
+  ['회차', `<b>${esc(meta.round)}</b>`],
+].map(([k, v]) => `<span>${k} ${v}</span>`).join('');
+$('#xl-name').textContent = meta.xlsxName;
+
+/* KPI tiles */
+const lv = { high: 0, mid: 0, low: 0 };
+FAILS.forEach(f => lv[f.level] = (lv[f.level] || 0) + 1);
+$('#kpis').innerHTML = `
+  <div class="kpi"><div class="label">검증 필드</div><div class="value">${total}<small>개</small></div><div class="foot">${summary.by_structure.map(s => `${s.name.replace('Identify ', '')} ${s.total}`).join(' · ')}</div></div>
+  <div class="kpi"><div class="label"><span class="ico pass">✓</span>Pass</div><div class="value">${summary.pass}<small>${pct(summary.pass)}%</small></div><div class="foot">기준 문서와 일치</div></div>
+  <div class="kpi"><div class="label"><span class="ico fail">✕</span>Fail</div><div class="value">${summary.fail}<small>${pct(summary.fail)}%</small></div><div class="foot">영향도 높음 ${lv.high} · 중간 ${lv.mid} · 낮음 ${lv.low}</div></div>
+  <div class="kpi"><div class="label"><span class="ico review">!</span>검토 필요</div><div class="value">${summary.review}<small>${pct(summary.review)}%</small></div><div class="foot">${meta.draftsMissing ? '문의 초안 미작성 (AI 5 미실행)' : `문의 초안 ${REVIEWS.length}건`}</div></div>`;
+
+/* Stacked bars */
+const groups = [{ name: '전체', ...summary }, ...summary.by_structure];
+$('#bars').innerHTML = groups.map(g => {
+  const segs = ['pass', 'fail', 'review'].filter(k => g[k]).map(k =>
+    `<div class="seg ${k}" style="width:${g[k] / g.total * 100}%" data-g="${esc(g.name)}" data-k="${k}" data-n="${g[k]}" data-t="${g.total}"></div>`).join('');
+  return `<div class="bar-row"><div class="name">${esc(g.name)}</div><div class="track">${segs}</div>
+    <div class="nums">Pass ${g.pass} · Fail ${g.fail} · 검토 ${g.review} / ${g.total}</div></div>`;
+}).join('');
+
+const tip = $('#tip');
+document.querySelectorAll('.seg').forEach(el => {
+  el.addEventListener('mousemove', e => {
+    const k = el.dataset.k;
+    const names = ROWS.filter(r => r.verdict === k && (el.dataset.g === '전체' || r.structure === el.dataset.g)).map(r => r.field);
+    const shown = names.length > 14 ? names.slice(0, 14).join(', ') + ` 외 ${names.length - 14}개` : names.join(', ');
+    tip.innerHTML = `<div class="t">${esc(el.dataset.g)}</div>
+      <div class="r"><span class="ico ${k}">${ICON[k]}</span>${S[k]}<b>${el.dataset.n}건 · ${pct(el.dataset.n, el.dataset.t)}%</b></div>
+      ${k !== 'pass' ? `<div class="r" style="margin-top:4px;max-width:320px">${esc(shown)}</div>` : ''}`;
+    tip.style.display = 'block';
+    const x = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
+    tip.style.left = x + 'px';
+    tip.style.top = (e.clientY + 14) + 'px';
+  });
+  el.addEventListener('mouseleave', () => tip.style.display = 'none');
+});
+
+/* Review items */
+$('#review-count').textContent = `${REVIEWS.length}건`;
+$('#reviews').innerHTML = REVIEWS.length ? REVIEWS.map(r => `
+  <div class="review-card">
+    <div class="hd">${badge('review')}<span class="id">${esc(r.id)}</span><span class="field">${esc(r.fields)}</span><span style="color:var(--text-muted);font-size:12px">${esc(r.struct)}</span>
+      <span class="reason-tags">${r.reason_types.map(t => `<span class="rtag">${esc(t)}</span>`).join('')}</span></div>
+    <dl>
+      <dt>실제값</dt><dd class="mono">${esc(r.actual)}</dd>
+      <dt>문서별 기대값</dt><dd>${r.expected.map(e => `<div>${esc(e)}</div>`).join('')}</dd>
+      <dt>검토 사유</dt><dd>${esc(r.reason)}</dd>
+      <dt>문의 대상</dt><dd>${esc(r.to)}</dd>
+    </dl>
+    <details class="draft"><summary>문의 초안 보기</summary><pre>${esc(r.draft)}</pre></details>
+  </div>`).join('') : '<div class="empty">검토 필요 항목이 없습니다.</div>';
+
+/* Fail analysis */
+$('#fails').innerHTML = FAILS.length ? FAILS.map(f => `
+  <div class="fail-card">
+    <div class="hd">${badge('fail')}<span class="field mono" style="font-weight:700">${esc(f.field)}</span><span style="color:var(--text-muted);font-size:12px">${esc(f.struct)}</span>
+      <span style="margin-left:auto">영향도 <span class="lvl ${f.level}">${esc(f.levelText)}</span></span></div>
+    <div class="cmp">
+      <div><span class="k">기대값</span><span class="v">${esc(f.exp)}</span></div>
+      <div><span class="k">실제값</span><span class="v">${esc(f.act)}</span></div>
+      <div><span class="k">근거 문서</span><span class="v" style="font-family:inherit;font-weight:500">${esc(f.src)}</span></div>
+    </div>
+    <p><b>예상 원인</b>${esc(f.cause)}</p>
+    <p><b>영향</b>${esc(f.impact)}</p>
+    <p><b>조치 제안</b>${esc(f.action)}</p>
+  </div>`).join('') : '<div class="empty">Fail 항목이 없습니다.</div>';
+
+$('#opinion').innerHTML = OPINION.map(o => `<li>${esc(o)}</li>`).join('');
+
+/* Excel view (엑셀 파일과 같은 시트 구성) */
+function xlTable(head, rows) {
+  const col = i => { let s = ''; for (i += 1; i > 0; i = Math.floor((i - 1) / 26)) s = String.fromCharCode(65 + ((i - 1) % 26)) + s; return s; };
+  return `<table><thead>
+    <tr><th class="rn"></th>${head.map((_, i) => `<th style="text-align:center;font-weight:500;color:var(--text-muted)">${col(i)}</th>`).join('')}</tr>
+    <tr><th class="rn">1</th>${head.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>
+    ${rows.map((r, i) => `<tr class="${r.cls || ''}"><td class="rn">${i + 2}</td>${r.cells.map(c =>
+      `<td${typeof c === 'number' ? ' class="num"' : ''} style="white-space:pre-wrap">${c && c.html ? c.html : esc(c)}</td>`).join('')}</tr>`).join('')}
+  </tbody></table>`;
+}
+
+const SHEETS = {
+  '요약': () => xlTable(['항목', '내용'], DATA.summarySheet.map(r => ({ cells: r }))),
+  '상세 결과': (filter) => xlTable(DATA.detailHead,
+    ROWS.filter(r => filter === 'all' || r.verdict === filter).map(r => ({
+      cls: 'r-' + r.verdict,
+      cells: [r.no, r.structure, r.field, r.cli, r.offset, r.expected, r.actual, r.source, { html: badge(r.verdict) }, r.reason],
+    }))),
+  '검토 필요사항': () => xlTable(['ID', '필드', '구분', '실제값', '문서별 기대값', '사유 유형', '검토 사유', '문의 대상', '문의 초안'],
+    REVIEWS.map(r => ({ cls: 'r-review', cells: [r.id, r.fields, r.struct, r.actual, r.expected.join('\n'), r.reason_types.join(', '), r.reason, r.to, { html: `<div style="white-space:pre-wrap;min-width:320px">${esc(r.draft)}</div>` }] }))),
+  'Fail 분석': () => xlTable(['필드', '구분', '기대값', '실제값', '근거 문서', '예상 원인', '영향도', '영향', '조치 제안'],
+    FAILS.map(f => ({ cls: 'r-fail', cells: [f.field, f.struct, f.exp, f.act, f.src, f.cause, { html: `<span class="lvl ${f.level}">${esc(f.levelText)}</span>` }, f.impact, f.action] }))),
+};
+
+let sheet = '상세 결과', filter = 'all';
+function renderXl() {
+  $('#xl-sheets').innerHTML = Object.keys(SHEETS).map(n => `<button role="tab" aria-selected="${n === sheet}">${n}</button>`).join('');
+  $('#xl-filters').innerHTML = sheet === '상세 결과'
+    ? [['all', `전체 ${total}`], ['pass', `Pass ${summary.pass}`], ['fail', `Fail ${summary.fail}`], ['review', `검토 필요 ${summary.review}`]]
+        .map(([k, l]) => `<button data-f="${k}" aria-pressed="${k === filter}">${l}</button>`).join('')
+    : '';
+  $('#xl-body').innerHTML = SHEETS[sheet](filter);
+}
+$('#xl-sheets').addEventListener('click', e => { if (e.target.tagName === 'BUTTON') { sheet = e.target.textContent; renderXl(); } });
+$('#xl-filters').addEventListener('click', e => { if (e.target.dataset.f) { filter = e.target.dataset.f; renderXl(); } });
+renderXl();
+
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+  document.querySelectorAll('.panel').forEach(p => p.hidden = p.id !== b.getAttribute('aria-controls'));
+}));
+</script>
+</body>
+</html>
